@@ -34,6 +34,9 @@ CREATE TABLE Instrumento (
 	FOREIGN KEY (Financiador) REFERENCES Financiador(ID)
 );
 
+/*
+Vista que muestra los instrumentos en formato legible
+*/
 CREATE VIEW VerTodosLosInstrumentos AS SELECT
 	Instrumento.ID,
 	Instrumento.Titulo,
