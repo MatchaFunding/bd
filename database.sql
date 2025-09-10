@@ -331,6 +331,34 @@ CREATE TABLE Instrumento (
 	FOREIGN KEY (Financiador) REFERENCES Financiador(ID)
 );
 
+CREATE VIEW VerTodosLosInstrumentos AS SELECT
+	Instrumento.ID,
+	Instrumento.Titulo,
+	Financiador.Nombre AS Financiador,
+	Region.Nombre AS Alcance,
+	Instrumento.Descripcion,
+	Instrumento.FechaDeApertura,
+	Instrumento.FechaDeCierre,
+	Instrumento.DuracionEnMeses,
+	Instrumento.Beneficios,
+	Instrumento.Requisitos,
+	Instrumento.MontoMinimo,
+	Instrumento.MontoMaximo,
+	EstadoDeFondo.Nombre AS Estado,
+	TipoDeBeneficio.Nombre AS TipoDeBeneficio,
+	TipoDePerfil.Nombre AS TipoDePerfil,
+	Instrumento.EnlaceDelDetalle,
+	Instrumento.EnlaceDeLaFoto
+FROM
+	Instrumento, Financiador, Region,
+	EstadoDeFondo, TipoDeBeneficio, TipoDePerfil
+WHERE
+	Financiador.ID=Instrumento.Financiador AND
+	Region.ID=Instrumento.Alcance AND
+	EstadoDeFondo.ID=Instrumento.Estado AND
+	TipoDeBeneficio.ID=Instrumento.TipoDeBeneficio AND
+	TipoDePerfil.ID=Instrumento.TipoDePerfil;
+
 /*
 Clase que representa los estados en los que se puede encontrar una postulacion.
 Los resultados solo pueden caer dentro de las tres categorias.

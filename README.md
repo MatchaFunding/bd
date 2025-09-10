@@ -11,3 +11,6 @@ El comando para armar la base de datos desde Windows es:
 ```
 mysql -h 127.0.0.1 -P 3306 -u root -p MatchaFundingMySQL < database.sql
 ```
+
+Si el _<_ hace problemas, hay que ejecutar el comando _cmd_, el cual activara un
+terminal en modo compatibilidad, el cual si es compatible con el signo.
