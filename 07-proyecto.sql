@@ -1,0 +1,21 @@
+/*
+Clase que representa los proyectos de una misma empresa.
+https://www.boletaofactura.com/
+*/
+CREATE TABLE Proyecto (
+	ID bigint NOT NULL AUTO_INCREMENT,
+	Beneficiario bigint NOT NULL,
+	Titulo varchar(500) NOT NULL,
+	Descripcion varchar(2000) NOT NULL,
+	DuracionEnMesesMinimo int NOT NULL,
+	DuracionEnMesesMaximo int NOT NULL,
+	Alcance bigint NOT NULL,
+	Area varchar(500) NOT NULL, /* Area o campo bajo el cual se desarrolla */
+	Problema varchar(1000) NULL default "", /* Problema que busca resolver */ 
+	Publico varchar(1000) NULL default "", /* Publico objetivo destinado */ 
+	Innovacion varchar(1000) NULL default "", /* Innovacion u aporte que trae */ 
+	Historico boolean NULL default false, /* Indica si el proyecto es historico */
+	PRIMARY KEY (ID),
+	FOREIGN KEY (Beneficiario) REFERENCES Beneficiario(ID),
+	FOREIGN KEY (Alcance) REFERENCES Region(ID)
+);

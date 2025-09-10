@@ -1,0 +1,27 @@
+/*
+Clase que representa la empresa, emprendimiento, grupo de investigacion, etc.
+que desea postular al fondo. La informacion debe regirse por la descripcion
+legal de la empresa.
+https://www.registrodeempresasysociedades.cl/MarcaDominio.aspx
+https://www.rutificador.co/empresas/buscar
+https://www.boletaofactura.com/
+https://registros19862.gob.cl/
+https://dequienes.cl/
+*/
+CREATE TABLE Beneficiario (
+	ID bigint NOT NULL AUTO_INCREMENT,
+	Nombre varchar(100) NOT NULL,
+	FechaDeCreacion date NOT NULL,
+	RegionDeCreacion bigint NOT NULL,
+	Direccion varchar(300) NOT NULL,
+	TipoDePersona bigint NOT NULL,
+	TipoDeEmpresa bigint NOT NULL,
+	Perfil bigint NOT NULL,
+	RUTdeEmpresa varchar(12) NOT NULL,
+	RUTdeRepresentante varchar(12) NOT NULL,
+	PRIMARY KEY (ID),
+	FOREIGN KEY (RegionDeCreacion) REFERENCES Region(ID),
+	FOREIGN KEY (TipoDePersona) REFERENCES TipoDePersona(ID),
+	FOREIGN KEY (TipoDeEmpresa) REFERENCES TipoDeEmpresa(ID),
+	FOREIGN KEY (Perfil) REFERENCES TipoDePerfil(ID)
+);
