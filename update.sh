@@ -1,1 +1,1 @@
-sudo mariadb < database.sql
+cat *sql | sudo mariadb
