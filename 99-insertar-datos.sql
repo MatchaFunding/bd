@@ -8,6 +8,7 @@ INSERT INTO Persona (ID, Nombre, Sexo, RUT, FechaDeNacimiento) VALUES
 (7,'MIGUEL ANGEL ZACARIAS ABARA HALABI',1,'7.251.437-8','1956-01-01'),
 (8,'CALEB OTONIEL ARAYA CASTILLO',1,'10.521.624-6','1967-01-01'),
 (10,'Maximiliano Bardi',1,'21.030.899-7','2002-08-26'),
+(19,'Maximiliano Bardi',1,'21.030.899-7','2004-10-15'),
 (25,'Andres Gordillo',1,'10.000.000-5','2000-01-01'),
 (26,'Vicente Figueora',1,'22.222.222-0','2000-12-12'),
 (27,'Sebastian Borja',1,'21.211.122-9','2000-10-10'),
@@ -15,6 +16,7 @@ INSERT INTO Persona (ID, Nombre, Sexo, RUT, FechaDeNacimiento) VALUES
 (34,'Miguel Angel Soto Oyarzún',1,'9.238.295-8','1967-09-18'),
 (38,'Miguel Soto Delgado',1,'20.430.363-0','2000-04-07'),
 (40,'Alvaro Opazo',1,'20.435.337-9','2000-09-24'),
+(43,'Miguel Soto',1,'20.430.363-0','2000-07-04'),
 (45,'Vicente Alvear',1,'20.557.229-5','2000-07-25'),
 (47,'Javiera Osorio',2,'20.966.993-5','2002-05-06'),
 (48,'Nicolás Barahona',1,'21.037.987-8','2002-06-09'),
@@ -25,6 +27,10 @@ INSERT INTO Persona (ID, Nombre, Sexo, RUT, FechaDeNacimiento) VALUES
 (54,'Esteban Zapata',1,'10.100.100-1','1985-04-04'),
 (55,'Bernardo Pinninghoff',1,'10.999.999-9','2000-07-07'),
 (57,'Catalina Seguel',2,'20.222.222-2','2002-02-02');
+
+INSERT INTO Usuario (ID, NombreDeUsuario, Contrasena, Correo, Persona) VALUES
+(9,'tututuru@max.cl','12345678!','tututuru@max.cl',19),
+(20,'matchafunding@gmail.com','Umami1939!','matchafunding@gmail.com',43);
 
 INSERT INTO Beneficiario VALUES
 (1,'ASOCIACION CHILE DISENO ASOCIACION GREMIAL','2025-01-01',17,'N/A',2,4,1,'507412300','507412300'),
