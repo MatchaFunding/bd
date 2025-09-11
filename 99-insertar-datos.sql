@@ -333,8 +333,7 @@ INSERT INTO Proyecto (ID, Titulo, Descripcion, DuracionEnMesesMaximo, DuracionEn
 (147,'Enseñanza Complementaria','Implementación de programas de enseñanza no contemplados en el currículo escolar regular, enfocados en habilidades específicas y desarrollo personal.',6,12,7,'Educación',49),
 (148,'Actividades Asociativas','Desarrollo de actividades diversas realizadas por asociaciones sin fines de lucro, abarcando eventos, talleres y programas comunitarios.',6,12,7,'Comunidad',49),
 (149,'Investigación y Desarrollo','Investigaciones y desarrollo experimental en el campo de las ciencias naturales y la ingeniería.',6,12,7,'Ciencia y Tecnología',50),
-(150,'Promoción Cultural y Recreativa','Promoción de actividades culturales o recreativas a través de fundaciones y corporaciones.',6,12,7,'Cultura y Recreación',50);
-/*
+(150,'Promoción Cultural y Recreativa','Promoción de actividades culturales o recreativas a través de fundaciones y corporaciones.',6,12,7,'Cultura y Recreación',50),
 (151,'Recuperación Metales','Recuperación y Reciclado de Desperdicios y Desechos Metálicos.',6,12,7,'Medio Ambiente',51),
 (152,'Recuperación Papel','Recuperación y Reciclado de Papel.',6,12,7,'Medio Ambiente',51),
 (153,'Recuperación Otros Desperdicios','Recuperación y Reciclado de Otros Desperdicios y Desechos N.C.P.',6,12,7,'Medio Ambiente',51),
@@ -398,13 +397,14 @@ INSERT INTO Proyecto (ID, Titulo, Descripcion, DuracionEnMesesMaximo, DuracionEn
 (211,'Servicios de Apoyo','Otras actividades de servicios de apoyo a las empresas.',6,12,7,'Servicios',73),
 (212,'Asociaciones N.C.P.','Realización de actividades de Otras Asociaciones N.C.P.',6,12,7,'Social',74),
 (213,'Diseño Especializado','Realización de otras actividades especializadas de diseño no clasificadas en otra parte.',6,12,7,'Diseño',75),
-(214,'Actividades de Asociación','Desarrollo de actividades de otras asociaciones no clasificadas en otra parte.',6,12,7,'Asociación',75),
+(214,'Actividades de Asociación','Desarrollo de actividades de otras asociaciones no clasificadas en otra parte.',6,12,7,'Asociación',75);
+/*
 (215,'Promoción Cultural y Recreativa','Fomento de actividades culturales y recreativas a través de una corporación sin fines de lucro, abarcando diversas expresiones artísticas y promoviendo la participación comunitaria.',6,12,7,'Cultura',76),
 (216,'Asesoria Financiera','Empresa de Asesoria y Consultoria En Inversion Financiera, Sociedades de Apoyo Al Giro.',6,12,7,'Financiero',77),
 (217,'Gestion de Empresas','Asesoria y Gestion En La Compra o Venta de Pequeñas y Medianas Empresas.',6,12,7,'Empresarial',77),
 (218,'Enseñanza','Otros Tipos de Enseñanza N.C.P.',6,12,7,'Educación',77),
 (219,'Actividades Asociativas','Actividades de Otras Asociaciones N.C.P.',6,12,7,'Social',77),
-(220,'Consultoría de Gestión','Actividades de Consultoría de Gestión para la asociación gremial.',6,12,7,'Gestión',78),
+(220,'Consultoría de Gestión','Actividades de Consultoría de Gestión para la asociación gremial.',6,12,7,'Gestión',78);
 (221,'Servicios de Publicidad','Servicios de Publicidad Prestados Por Empresas para la asociación.',6,12,7,'Marketing',78),
 (222,'Servicios de Apoyo Empresarial','Otras Actividades de Servicios de Apoyo A Las Empresas N.C.P. para la asociación.',6,12,7,'Apoyo Empresarial',78),
 (223,'Actividades de Asociación','Actividades de Otras Asociaciones N.C.P. para la asociación gremial.',6,12,7,'Asociación',78),
