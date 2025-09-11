@@ -1,4 +1,4 @@
-INSERT INTO Persona VALUES
+INSERT INTO Persona (ID, Nombre, Sexo, RUT, FechaDeNacimiento) VALUES
 (1,'JULIO CESAR GIDDINGS CANDIA',1,'8.973.685-4','1962-01-01'),
 (2,'BEATRIZ EDITH ARAYA ARANCIBIA',2,'10.663.051-8','1967-01-01'),
 (3,'RENZON ANDRES BUSTOS ROMERO',1,'15.334.942-8','1983-01-01'),
@@ -24,7 +24,7 @@ INSERT INTO Persona VALUES
 (53,'Romi Gladys',2,'20.123.123-1','2003-03-12'),
 (54,'Esteban Zapata',1,'10.100.100-1','1985-04-04'),
 (55,'Bernardo Pinninghoff',1,'10.999.999-9','2000-07-07'),
-(57,'Catalina Seguel',2,'20.222.222-2','2002-02-02')
+(57,'Catalina Seguel',2,'20.222.222-2','2002-02-02');
 
 INSERT INTO Beneficiario VALUES
 (1,'ASOCIACION CHILE DISENO ASOCIACION GREMIAL','2025-01-01',17,'N/A',2,4,1,'507412300','507412300'),
@@ -183,7 +183,7 @@ INSERT INTO Instrumento VALUES
 (52,'MI TAXI ELÉCTRICO ANTOFAGASTA',3,2,'Este fondo cofinancia la inversión para el reemplazo de un vehículo con motor de combustión interna, que sea taxi en todas sus modalidades, según DS-212 de MTT a un vehículo eléctrico. El vehículo a reemplazar debe estar inscrito en el registro nacional de transporte de pasajeros en la región y el propietario debe contar con un lugar o estacionamiento bajo su control y que pueda ser instalado un cargador para el vehículo eléctrico. Este Fondo se encontrará abierto hasta completar los cupos (59).','2024-03-26','2025-10-30',12,'Capacitación','Tener RUT chileno, Estar inscrito en un programa x',0,16000000,2,1,6,'https://www.fondos.gob.cl/ficha/minenergia/mte-antofagasta/',''),
 (53,'FNDR Deportistas O’Higgins 2025',3,8,'Apoyar procesos de preparación y/o entrenamientos para competencias de deportistas destacados, convencionales y paralímpicos. Dichos deportistas deben tener domicilio (residencia) y afiliación deportiva en la Región de O’Higgins. Sin perjuicio de lo anterior, y con respecto al punto de la exigencia de afiliación deportiva, se considerarán casos excepcionales, pero debidamente calificados, por ejemplo, para aquellas disciplinas que no posean clubes federados en la región, seleccionados/as nacionales que, a pesar de tener domicilio en la región, por motivos fundamentados, han debido afiliarse a clubes fuera de esta, (entre otros similares). Cabe señalar, que la pertinencia de dichos casos será evaluada por la Unidad FNDR 8%.','2025-05-06','2025-12-31',7,'Capacitación','Tener RUT chileno, Ser persona natural o jurídica, Estar insrito en un programa x',6000000,8000000,2,1,6,'https://www.fondos.gob.cl/ficha/goreohiggins/fndr_deportistas_ohiggins-2025/','');
 
-INSERT INTO Proyecto VALUES
+INSERT INTO Proyecto (ID, Titulo, Descripcion, DuracionEnMesesMaximo, DuracionEnMesesMinimo, Alcance, Area, Beneficiario) VALUES
 (1,'Consultoria de Gestion','Actividades de Consultoria de Gestion para empresas y organizaciones.',6,12,7,'Gestion Empresarial',1),
 (2,'Servicios de Apoyo Empresarial','Otras Actividades de Servicios de Apoyo A Las Empresas.',6,12,7,'Apoyo Empresarial',1),
 (3,'Actividades de Asociaciones Profesionales','Actividades de Asociaciones Profesionales para el desarrollo del sector.',6,12,7,'Desarrollo Profesional',1),
@@ -333,7 +333,8 @@ INSERT INTO Proyecto VALUES
 (147,'Enseñanza Complementaria','Implementación de programas de enseñanza no contemplados en el currículo escolar regular, enfocados en habilidades específicas y desarrollo personal.',6,12,7,'Educación',49),
 (148,'Actividades Asociativas','Desarrollo de actividades diversas realizadas por asociaciones sin fines de lucro, abarcando eventos, talleres y programas comunitarios.',6,12,7,'Comunidad',49),
 (149,'Investigación y Desarrollo','Investigaciones y desarrollo experimental en el campo de las ciencias naturales y la ingeniería.',6,12,7,'Ciencia y Tecnología',50),
-(150,'Promoción Cultural y Recreativa','Promoción de actividades culturales o recreativas a través de fundaciones y corporaciones.',6,12,7,'Cultura y Recreación',50),
+(150,'Promoción Cultural y Recreativa','Promoción de actividades culturales o recreativas a través de fundaciones y corporaciones.',6,12,7,'Cultura y Recreación',50);
+/*
 (151,'Recuperación Metales','Recuperación y Reciclado de Desperdicios y Desechos Metálicos.',6,12,7,'Medio Ambiente',51),
 (152,'Recuperación Papel','Recuperación y Reciclado de Papel.',6,12,7,'Medio Ambiente',51),
 (153,'Recuperación Otros Desperdicios','Recuperación y Reciclado de Otros Desperdicios y Desechos N.C.P.',6,12,7,'Medio Ambiente',51),
@@ -470,5 +471,5 @@ INSERT INTO Proyecto VALUES
 (284,'Actividades de Asociaciones N.C.P.','Desarrollo de actividades propias de asociaciones sin fines de lucro, abarcando diversas iniciativas y proyectos sociales.',6,12,7,'Social',99),
 (285,'Promoción Cultural','Fomento de actividades culturales y recreativas a través de fundaciones y corporaciones.',6,12,7,'Cultural',100),
 (286,'Actividades Asociativas','Desarrollo de actividades propias de asociaciones sin fines de lucro.',6,12,7,'Social',100),
-(287,'Asesoría y Gestión de PyMEs','Asesoría y gestión en la compra o venta de pequeñas y medianas empresas.',6,12,7,'Empresarial',101)
-
+(287,'Asesoría y Gestión de PyMEs','Asesoría y gestión en la compra o venta de pequeñas y medianas empresas.',6,12,7,'Empresarial',101);
+*/
