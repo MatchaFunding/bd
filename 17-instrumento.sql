@@ -56,7 +56,7 @@ CREATE VIEW VerTodosLosInstrumentos AS SELECT
 	Instrumento.MontoMaximo,
 	EstadoDeFondo.Nombre AS Estado,
 	TipoDeBeneficio.Nombre AS TipoDeBeneficio,
-	Instrumento.Nombre AS TipoDePerfil,
+	TipoDePerfil.Nombre AS TipoDePerfil,
 	Instrumento.Proposito,
 	Instrumento.ObjetivoGeneral,
 	Instrumento.ObjetivoEspecifico,
