@@ -11,7 +11,7 @@ https://datainnovacion.cl/api
 CREATE TABLE Instrumento (
 	ID bigint NOT NULL AUTO_INCREMENT,
 	Titulo varchar(200) NOT NULL,
-	Financiador bigint NOT NULL,    
+	Financiador bigint NOT NULL,
 	Alcance bigint NOT NULL,
 	Descripcion varchar(1000) NOT NULL,
 	FechaDeApertura date NOT NULL,
@@ -24,6 +24,10 @@ CREATE TABLE Instrumento (
 	Estado bigint NOT NULL,
 	TipoDeBeneficio bigint NOT NULL,
 	TipoDePerfil bigint NOT NULL,
+	Proposito varchar(1000) NULL default "",
+	ObjetivoGeneral varchar(1000) NULL default "",
+	ObjetivoEspecifico varchar(1000) NULL default "",
+	ResultadoEsperado varchar(1000) NULL default "",
 	EnlaceDelDetalle varchar(300) NULL default "",
 	EnlaceDeLaFoto varchar(300) NULL default "",
 	PRIMARY KEY (ID),
@@ -52,7 +56,11 @@ CREATE VIEW VerTodosLosInstrumentos AS SELECT
 	Instrumento.MontoMaximo,
 	EstadoDeFondo.Nombre AS Estado,
 	TipoDeBeneficio.Nombre AS TipoDeBeneficio,
-	TipoDePerfil.Nombre AS TipoDePerfil,
+	Instrumento.Nombre AS TipoDePerfil,
+	Instrumento.Proposito,
+	Instrumento.ObjetivoGeneral,
+	Instrumento.ObjetivoEspecifico,
+	Instrumento.ResultadoEsperado,
 	Instrumento.EnlaceDelDetalle,
 	Instrumento.EnlaceDeLaFoto
 FROM

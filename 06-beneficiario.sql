@@ -19,6 +19,9 @@ CREATE TABLE Beneficiario (
 	Perfil bigint NOT NULL,
 	RUTdeEmpresa varchar(12) NOT NULL,
 	RUTdeRepresentante varchar(12) NOT NULL,
+	Mision varchar(1000) NULL default "",
+	Vision varchar(1000) NULL default "",
+	Valores varchar(1000) NULL default "",
 	PRIMARY KEY (ID),
 	FOREIGN KEY (RegionDeCreacion) REFERENCES Region(ID),
 	FOREIGN KEY (TipoDePersona) REFERENCES TipoDePersona(ID),
@@ -39,7 +42,10 @@ CREATE VIEW VerTodosLosBeneficiarios AS SELECT
 	TipoDeEmpresa.Nombre AS TipoDeEmpresa,
 	TipoDePerfil.Nombre AS Perfil,
 	Beneficiario.RUTdeEmpresa,
-	Beneficiario.RUTdeRepresentante
+	Beneficiario.RUTdeRepresentante,
+	Beneficiario.Mision,
+	Beneficiario.Vision,
+	Beneficiario.Valores
 FROM
 	Beneficiario, Region, TipoDePersona, 
 	TipoDeEmpresa, TipoDePerfil

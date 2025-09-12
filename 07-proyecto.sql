@@ -14,6 +14,10 @@ CREATE TABLE Proyecto (
 	Problema varchar(1000) NULL default "", /* Problema que busca resolver */ 
 	Publico varchar(1000) NULL default "", /* Publico objetivo destinado */ 
 	Innovacion varchar(1000) NULL default "", /* Innovacion u aporte que trae */ 
+	Proposito varchar(1000) NULL default "",
+	ObjetivoGeneral varchar(1000) NULL default "",
+	ObjetivoEspecifico varchar(1000) NULL default "",
+	ResultadoEsperado varchar(1000) NULL default "",
 	Historico boolean NULL default false, /* Indica si el proyecto es historico */
 	PRIMARY KEY (ID),
 	FOREIGN KEY (Beneficiario) REFERENCES Beneficiario(ID),
