@@ -16,3 +16,5 @@ VALUES
 	(4,"MED","Intermediario"),
 	(5,"ORG","Organizacion"),
 	(6,"PER","Persona");
+
+CREATE VIEW VerTiposDePerfil AS SELECT Nombre FROM TipoDePerfil;

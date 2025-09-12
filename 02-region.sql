@@ -27,3 +27,5 @@ VALUES
 	(15,"AI","Aysen"),
 	(16,"MA","Magallanes"),
 	(17,"NA","Nacional");
+
+CREATE VIEW VerRegiones AS SELECT Nombre FROM Region;
