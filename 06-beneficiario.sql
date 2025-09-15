@@ -33,7 +33,6 @@ CREATE TABLE Beneficiario (
 Vista que muestra los beneficiarios en formato legible
 */
 CREATE VIEW VerTodosLosBeneficiarios AS SELECT
-	Beneficiario.ID,
 	Beneficiario.Nombre,
 	Region.Nombre AS RegionDeCreacion,
 	Beneficiario.FechaDeCreacion,

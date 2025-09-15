@@ -24,7 +24,6 @@ CREATE TABLE Persona (
 Vista que muestra las personas en formato legible
 */
 CREATE VIEW VerTodasLasPersonas AS SELECT
-	Persona.ID,
 	Persona.Nombre,
 	Persona.Apellido,
 	Sexo.Nombre AS Sexo,

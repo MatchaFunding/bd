@@ -28,7 +28,6 @@ CREATE TABLE Proyecto (
 Vista que muestra los proyectos en formato legible
 */
 CREATE VIEW VerTodosLosProyectos AS SELECT
-	Proyecto.ID,
 	Beneficiario.Nombre AS Beneficiario,
 	Proyecto.Titulo,
 	Proyecto.Descripcion,

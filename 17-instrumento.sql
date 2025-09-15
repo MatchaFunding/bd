@@ -42,7 +42,6 @@ CREATE TABLE Instrumento (
 Vista que muestra los instrumentos en formato legible
 */
 CREATE VIEW VerTodosLosInstrumentos AS SELECT
-	Instrumento.ID,
 	Instrumento.Titulo,
 	Financiador.Nombre AS Financiador,
 	Region.Nombre AS Alcance,
