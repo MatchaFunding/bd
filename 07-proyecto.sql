@@ -11,13 +11,13 @@ CREATE TABLE Proyecto (
 	DuracionEnMesesMaximo int NOT NULL,
 	Alcance bigint NOT NULL,
 	Area varchar(500) NOT NULL, /* Area o campo bajo el cual se desarrolla */
-	Problema varchar(1000) NULL default "", /* Problema que busca resolver */ 
-	Publico varchar(1000) NULL default "", /* Publico objetivo destinado */ 
-	Innovacion varchar(1000) NULL default "", /* Innovacion u aporte que trae */ 
-	Proposito varchar(1000) NULL default "",
-	ObjetivoGeneral varchar(1000) NULL default "",
-	ObjetivoEspecifico varchar(1000) NULL default "",
-	ResultadoEsperado varchar(1000) NULL default "",
+	Problema varchar(1000) NULL, /* Problema que busca resolver */ 
+	Publico varchar(1000) NULL, /* Publico objetivo destinado */ 
+	Innovacion varchar(1000) NULL, /* Innovacion u aporte que trae */ 
+	Proposito varchar(1000) NULL,
+	ObjetivoGeneral varchar(1000) NULL,
+	ObjetivoEspecifico varchar(1000) NULL,
+	ResultadoEsperado varchar(1000) NULL,
 	Historico boolean NULL default false, /* Indica si el proyecto es historico */
 	PRIMARY KEY (ID),
 	FOREIGN KEY (Beneficiario) REFERENCES Beneficiario(ID),
