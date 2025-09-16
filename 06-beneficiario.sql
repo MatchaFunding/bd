@@ -7,6 +7,9 @@ https://www.rutificador.co/empresas/buscar
 https://www.boletaofactura.com/
 https://registros19862.gob.cl/
 https://dequienes.cl/
+https://www.cmfchile.cl/portal/principal/613/w3-propertyvalue-18556.html#enti_reportes
+https://es.wikipedia.org/wiki/Anexo:Empresas_de_Chile
+https://es.wikipedia.org/wiki/Categor%C3%ADa:Empresas_de_Chile
 */
 CREATE TABLE Beneficiario (
 	ID bigint NOT NULL AUTO_INCREMENT,
