@@ -10,7 +10,18 @@ CREATE TABLE Idea (
 	Innovacion varchar(1000) NOT NULL,
 	Oculta boolean NULL default false,
 	FechaDeCreacion date NULL,
-	UltimaFechaDeModificaion date NULL,
+	UltimaFechaDeModificacion date NULL,
 	PRIMARY KEY (ID),
 	FOREIGN KEY (Usuario) REFERENCES Usuario(ID)
 );
+
+CREATE VIEW VerTodasLasIdeas AS SELECT
+	Idea.Usuario,
+	Idea.Campo,
+	Idea.Problema,
+	Idea.Publico,
+	Idea.Innovacion,
+	Idea.Oculta,
+	Idea.FechaDeCreacion,
+	Idea.UltimaFechaDeModificacion
+FROM Idea;

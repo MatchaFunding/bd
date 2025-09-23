@@ -15,6 +15,7 @@ CREATE TABLE Usuario (
 CREATE VIEW VerTodosLosUsuarios AS SELECT
 	Usuario.NombreDeUsuario,
 	Usuario.Contrasena,
-	Usuario.Correo
+	Usuario.Correo,
+	Usuario.Persona
 FROM
 	Usuario;

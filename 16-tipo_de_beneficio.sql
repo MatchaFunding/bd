@@ -4,7 +4,7 @@ Tipo de beneficio que otorga cierto fondo o instrumento.
 CREATE TABLE TipoDeBeneficio (
 	ID bigint NOT NULL,
 	Codigo varchar(3) NOT NULL,
-	Nombre varchar(30) NOT NULL,
+	Nombre varchar(50) NOT NULL,
 	PRIMARY KEY (ID)
 );
 INSERT INTO TipoDeBeneficio (ID, Codigo, Nombre)
@@ -15,4 +15,9 @@ VALUES
 	(4,"GAR","Garantias"),
 	(5,"MUJ","Incentivo mujeres"),
 	(6,"OTR","Otros incentivos"),
-	(7,"SUB","Subsidios");
+	(7,"SUB","Subsidios"),
+	(8,"HUM","Capital Humano"),
+	(9,"INV","Proyectos de Investigación"),
+	(10,"CEA","Centros e Investigación Asociativa"),
+	(11,"IAP","Investigación Aplicada"),
+	(12,"REC","Redes, Estrategia y Conocimiento");
