@@ -28,7 +28,7 @@ CREATE TABLE Proyecto (
 Vista que muestra los proyectos en formato legible
 */
 CREATE VIEW VerTodosLosProyectos AS SELECT
-	Beneficiario.Nombre AS Beneficiario,
+	Proyecto.Beneficiario,
 	Proyecto.Titulo,
 	Proyecto.Descripcion,
 	Proyecto.DuracionEnMesesMinimo,
@@ -38,7 +38,6 @@ CREATE VIEW VerTodosLosProyectos AS SELECT
 	Proyecto.Problema,
 	Proyecto.Publico
 FROM
-	Proyecto, Beneficiario, Region
+	Proyecto, Region
 WHERE
-	Beneficiario.ID=Proyecto.Beneficiario AND
 	Region.ID=Proyecto.Alcance;
