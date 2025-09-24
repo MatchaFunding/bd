@@ -1,1 +1,0 @@
-cat *.sql > database.sql
