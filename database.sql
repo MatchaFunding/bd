@@ -1,0 +1,1045 @@
+DROP DATABASE IF EXISTS MatchaFundingMySQL;
+CREATE DATABASE IF NOT EXISTS MatchaFundingMySQL;
+USE MatchaFundingMySQL;
+/*
+Regiones de Chile como su propia tabla para poder hacer la validacion correcta
+Es un campo sumamanete comun en este contexto.
+*/
+CREATE TABLE Region (
+	ID bigint NOT NULL,
+	Codigo varchar(2) NOT NULL,
+	Nombre varchar(20) NOT NULL,
+	PRIMARY KEY (ID)
+);
+INSERT INTO Region (ID, Codigo, Nombre)
+VALUES
+	(1,"AP","Arica y Parinacota"),
+	(2,"TA","Tarapaca"),
+	(3,"AN","Antofagasta"),
+	(4,"AT","Atacama"),
+	(5,"CO","Coquimbo"),
+	(6,"VA","Valparaiso"),
+	(7,"RM","Santiago"),
+	(8,"LI","O Higgins"),
+	(9,"ML","Maule"),
+	(10,"NB","Nuble"),
+	(11,"BI","Biobio"),
+	(12,"AR","La Araucania"),
+	(13,"LR","Los Rios"),
+	(14,"LL","Los Lagos"),
+	(15,"AI","Aysen"),
+	(16,"MA","Magallanes"),
+	(17,"NA","Nacional");
+
+CREATE VIEW VerRegiones AS SELECT Nombre FROM Region;
+/*
+Tipo de persona que representa a una empresa en terminos juridicos. 
+En este contexto los beneficiarios y financiadores
+pueden ser empresas formales.
+https://www.sii.cl/mipyme/emprendedor/documentos/fac_Datos_Comenzar_2.htm
+*/
+CREATE TABLE TipoDePersona (
+	ID bigint NOT NULL,
+	Codigo varchar(2) NOT NULL,
+	Nombre varchar(10) NOT NULL,
+	PRIMARY KEY (ID)
+);
+INSERT INTO TipoDePersona (ID, Codigo, Nombre)
+VALUES
+	(1,"JU","Juridica"),
+	(2,"NA","Natural");
+
+CREATE VIEW VerTiposDePersona AS SELECT Nombre FROM TipoDePersona;
+/*
+Tipo de empresa que representa una agrupacion en el contexto legal.
+https://ipp.cl/general/tipos-de-empresas-en-chile/
+*/
+CREATE TABLE TipoDeEmpresa (
+	ID bigint NOT NULL,
+	Codigo varchar(4) NOT NULL,
+	Nombre varchar(50) NOT NULL,
+	PRIMARY KEY (ID)
+);
+INSERT INTO TipoDeEmpresa (ID, Codigo, Nombre)
+VALUES
+	(1,"SA","Sociedad Anonima"),
+	(2,"SRL","Sociedad de Responsabilidad Limitada"),
+	(3,"SPA","Sociedad por Acciones"),
+	(4,"EIRL","Empresa Individual de Responsabilidad Limitada");
+
+CREATE VIEW VerTiposDeEmpresa AS SELECT Nombre FROM TipoDeEmpresa;
+/*
+Tipo de perfil que asume la empresa, para este contexto
+representa su escala.
+*/
+CREATE TABLE TipoDePerfil (
+	ID bigint NOT NULL,
+	Codigo varchar(3) NOT NULL,
+	Nombre varchar(30) NOT NULL,
+	PRIMARY KEY (ID)
+);
+INSERT INTO TipoDePerfil (ID, Codigo, Nombre)
+VALUES
+	(1,"EMP","Empresa"),
+	(2,"EXT","Extranjero"),
+	(3,"INS","Institucion"),
+	(4,"MED","Intermediario"),
+	(5,"ORG","Organizacion"),
+	(6,"PER","Persona");
+
+CREATE VIEW VerTiposDePerfil AS SELECT Nombre FROM TipoDePerfil;
+/*
+Clase que representa la empresa, emprendimiento, grupo de investigacion, etc.
+que desea postular al fondo. La informacion debe regirse por la descripcion
+legal de la empresa.
+https://www.registrodeempresasysociedades.cl/MarcaDominio.aspx
+https://www.rutificador.co/empresas/buscar
+https://www.boletaofactura.com/
+https://registros19862.gob.cl/
+https://dequienes.cl/
+*/
+CREATE TABLE Beneficiario (
+	ID bigint NOT NULL AUTO_INCREMENT,
+	Nombre varchar(100) NOT NULL,
+	FechaDeCreacion date NOT NULL,
+	RegionDeCreacion bigint NOT NULL,
+	Direccion varchar(300) NOT NULL,
+	TipoDePersona bigint NOT NULL,
+	TipoDeEmpresa bigint NOT NULL,
+	Perfil bigint NOT NULL,
+	RUTdeEmpresa varchar(12) NOT NULL,
+	RUTdeRepresentante varchar(12) NOT NULL,
+	Mision varchar(1000) NULL,
+	Vision varchar(1000) NULL,
+	Valores varchar(1000) NULL,
+	PRIMARY KEY (ID),
+	FOREIGN KEY (RegionDeCreacion) REFERENCES Region(ID),
+	FOREIGN KEY (TipoDePersona) REFERENCES TipoDePersona(ID),
+	FOREIGN KEY (TipoDeEmpresa) REFERENCES TipoDeEmpresa(ID),
+	FOREIGN KEY (Perfil) REFERENCES TipoDePerfil(ID)
+);
+
+/*
+Vista que muestra los beneficiarios en formato legible
+*/
+CREATE VIEW VerTodosLosBeneficiarios AS SELECT
+	Beneficiario.Nombre,
+	Region.Nombre AS RegionDeCreacion,
+	Beneficiario.FechaDeCreacion,
+	Beneficiario.Direccion,
+	TipoDePersona.Nombre AS TipoDePersona,
+	TipoDeEmpresa.Nombre AS TipoDeEmpresa,
+	TipoDePerfil.Nombre AS Perfil,
+	Beneficiario.RUTdeEmpresa,
+	Beneficiario.RUTdeRepresentante,
+	Beneficiario.Mision,
+	Beneficiario.Vision,
+	Beneficiario.Valores
+FROM
+	Beneficiario, Region, TipoDePersona, 
+	TipoDeEmpresa, TipoDePerfil
+WHERE
+	Region.ID=Beneficiario.RegionDeCreacion AND
+	TipoDePersona.ID=Beneficiario.TipoDePersona AND
+	TipoDeEmpresa.ID=Beneficiario.TipoDeEmpresa AND
+	TipoDePerfil.ID=Beneficiario.Perfil;
+/*
+Clase que representa los proyectos de una misma empresa.
+https://www.boletaofactura.com/
+*/
+CREATE TABLE Proyecto (
+	ID bigint NOT NULL AUTO_INCREMENT,
+	Beneficiario bigint NOT NULL,
+	Titulo varchar(500) NOT NULL,
+	Descripcion varchar(2000) NOT NULL,
+	DuracionEnMesesMinimo int NOT NULL,
+	DuracionEnMesesMaximo int NOT NULL,
+	Alcance bigint NOT NULL,
+	Area varchar(500) NOT NULL, /* Area o campo bajo el cual se desarrolla */
+	Problema varchar(1000) NULL, /* Problema que busca resolver */ 
+	Publico varchar(1000) NULL, /* Publico objetivo destinado */ 
+	Innovacion varchar(1000) NULL, /* Innovacion u aporte que trae */ 
+	Proposito varchar(1000) NULL,
+	ObjetivoGeneral varchar(1000) NULL,
+	ObjetivoEspecifico varchar(1000) NULL,
+	ResultadoEsperado varchar(1000) NULL,
+	Historico boolean NULL default false, /* Indica si el proyecto es historico */
+	PRIMARY KEY (ID),
+	FOREIGN KEY (Beneficiario) REFERENCES Beneficiario(ID),
+	FOREIGN KEY (Alcance) REFERENCES Region(ID)
+);
+
+/*
+Vista que muestra los proyectos en formato legible
+*/
+CREATE VIEW VerTodosLosProyectos AS SELECT
+	Beneficiario.Nombre AS Beneficiario,
+	Proyecto.Titulo,
+	Proyecto.Descripcion,
+	Proyecto.DuracionEnMesesMinimo,
+	Proyecto.DuracionEnMesesMaximo,
+	Region.Nombre AS Alcance,
+	Proyecto.Area,
+	Proyecto.Problema,
+	Proyecto.Publico
+FROM
+	Proyecto, Beneficiario, Region
+WHERE
+	Beneficiario.ID=Proyecto.Beneficiario AND
+	Region.ID=Proyecto.Alcance;
+/*
+Genero u orientacion con la cual una persona se identifica.
+Preferi hacerlo una tabla para realizar las validaciones de
+fondos con enfoque de genero.
+*/
+CREATE TABLE Sexo (
+	ID bigint NOT NULL,
+	Codigo varchar(3) NOT NULL,
+	Nombre varchar(30) NOT NULL,
+	PRIMARY KEY (ID)
+);
+INSERT INTO Sexo (ID, Codigo, Nombre)
+VALUES
+	(1,"VAR","Hombre"),
+	(2,"MUJ","Mujer"),
+	(3,"NA","Otro");
+
+CREATE VIEW VerSexos AS SELECT Nombre FROM Sexo;
+/*
+Clase que representa a una persona natural, la cual puede ser miembro de una 
+empresa o proyecto. Abajo de este estan las asociaciones entre persona y 
+agrupacion.
+https://www.nombrerutyfirma.com/nombre
+https://www.nombrerutyfirma.com/rut
+https://www.volanteomaleta.com/
+*/
+CREATE TABLE Persona (
+	ID bigint NOT NULL AUTO_INCREMENT,
+	Nombre varchar(200) NOT NULL,
+	Apellido varchar(200) NULL,
+	Sexo bigint NOT NULL,
+	RUT varchar(12) NOT NULL,
+	FechaDeNacimiento date NOT NULL,
+	Ocupacion varchar(1000) NULL,
+	Correo varchar(200) NULL,
+	Telefono tinyint NULL,
+	PRIMARY KEY (ID),
+	FOREIGN KEY (Sexo) REFERENCES Sexo(ID)
+);
+
+/*
+Vista que muestra las personas en formato legible
+*/
+CREATE VIEW VerTodasLasPersonas AS SELECT
+	Persona.Nombre,
+	Persona.Apellido,
+	Sexo.Nombre AS Sexo,
+	Persona.RUT,
+	Persona.FechaDeNacimiento,
+	Persona.Ocupacion,
+	Persona.Correo,
+	Persona.Telefono
+FROM
+	Persona, Sexo
+WHERE
+	Sexo.ID=Persona.Sexo;
+/*
+Clase que representa a una persona que es parte de una empresa, 
+agrupacion o grupo de investigacion.
+https://dequienes.cl/
+*/
+CREATE TABLE Miembro (
+	ID bigint NOT NULL AUTO_INCREMENT,
+	Persona bigint NOT NULL,
+	Beneficiario bigint NOT NULL,
+	PRIMARY KEY (ID),
+	FOREIGN KEY (Beneficiario) REFERENCES Beneficiario(ID),
+	FOREIGN KEY (Persona) REFERENCES Persona(ID)
+);
+
+CREATE VIEW VerMiembros AS SELECT 
+Persona, Beneficiario 
+FROM Miembro;
+/*
+Clase que representa a una persona que es parte de un proyecto que busca fondos.
+https://dequienes.cl/
+*/
+CREATE TABLE Colaborador (
+	ID bigint NOT NULL AUTO_INCREMENT,
+	Persona bigint NOT NULL,
+	Proyecto bigint NOT NULL,
+	PRIMARY KEY (ID),
+	FOREIGN KEY (Persona) REFERENCES Persona(ID),
+	FOREIGN KEY (Proyecto) REFERENCES Proyecto(ID)
+);
+/*
+Clase que representa a un usuario de MatchaFunding.
+*/
+CREATE TABLE Usuario (
+	ID bigint NOT NULL AUTO_INCREMENT,
+	Persona bigint NULL,
+	NombreDeUsuario varchar(200),
+	Contrasena varchar(200) NOT NULL,
+	Correo varchar(200) NOT NULL,
+	Telefono tinyint NULL,
+	PRIMARY KEY (ID),
+	FOREIGN KEY (Persona) REFERENCES Persona(ID)
+);
+
+CREATE VIEW VerTodosLosUsuarios AS SELECT
+	Usuario.NombreDeUsuario,
+	Usuario.Contrasena,
+	Usuario.Correo,
+	Usuario.Persona
+FROM
+	Usuario;
+/*
+Agrupacion de multiples empresas y agrupaciones que pretenden postular
+en conjunto a un instrumento / fondo comun. A veces puede ser un
+requisito para postular a ciertos beneficios.
+*/
+CREATE TABLE Consorcio (
+	ID bigint NOT NULL AUTO_INCREMENT,
+	PrimerBeneficiario bigint NOT NULL,
+	SegundoBeneficiario bigint NOT NULL,
+	PRIMARY KEY (ID),
+	FOREIGN KEY (PrimerBeneficiario) REFERENCES Beneficiario(ID),
+	FOREIGN KEY (SegundoBeneficiario) REFERENCES Beneficiario(ID)
+);
+/*
+Clase que representa las entes financieras que ofrecen los fondos.
+En muchos sentidos operan de la misma forma que las entes benficiarias,
+lo unico que cambia en rigor son sus relaciones con las otras clases.
+https://www.registrodeempresasysociedades.cl/MarcaDominio.aspx
+https://www.rutificador.co/empresas/buscar
+https://registros19862.gob.cl/
+https://dequienes.cl/
+*/
+CREATE TABLE Financiador (
+	ID bigint NOT NULL AUTO_INCREMENT,
+	Nombre varchar(100) NOT NULL,
+	FechaDeCreacion date NOT NULL,
+	RegionDeCreacion bigint NOT NULL,
+	Direccion varchar(300) NOT NULL,
+	TipoDePersona bigint NOT NULL,
+	TipoDeEmpresa bigint NOT NULL,
+	Perfil bigint NOT NULL,
+	RUTdeEmpresa varchar(12) NOT NULL,
+	RUTdeRepresentante varchar(12) NOT NULL,
+	Mision varchar(1000) NULL,
+	Vision varchar(1000) NULL,
+	Valores varchar(1000) NULL,
+	PRIMARY KEY (ID),
+	FOREIGN KEY (RegionDeCreacion) REFERENCES Region(ID),
+	FOREIGN KEY (TipoDePersona) REFERENCES TipoDePersona(ID),
+	FOREIGN KEY (TipoDeEmpresa) REFERENCES TipoDeEmpresa(ID),
+	FOREIGN KEY (Perfil) REFERENCES TipoDePerfil(ID)
+);
+
+/*
+Vista que muestra los beneficiarios en formato legible
+*/
+CREATE VIEW VerTodosLosFinanciadores AS SELECT
+	Financiador.Nombre,
+	Region.Nombre AS RegionDeCreacion,
+	Financiador.FechaDeCreacion,
+	Financiador.Direccion,
+	TipoDePersona.Nombre AS TipoDePersona,
+	TipoDeEmpresa.Nombre AS TipoDeEmpresa,
+	TipoDePerfil.Nombre AS Perfil,
+	Financiador.RUTdeEmpresa,
+	Financiador.RUTdeRepresentante,
+	Financiador.Mision,
+	Financiador.Vision,
+	Financiador.Valores
+FROM
+	Financiador, Region, TipoDePersona, 
+	TipoDeEmpresa, TipoDePerfil
+WHERE
+	Region.ID=Financiador.RegionDeCreacion AND
+	TipoDePersona.ID=Financiador.TipoDePersona AND
+	TipoDeEmpresa.ID=Financiador.TipoDeEmpresa AND
+	TipoDePerfil.ID=Financiador.Perfil;
+
+INSERT INTO Financiador (ID,Nombre,FechaDeCreacion,RegionDeCreacion,Direccion,TipoDePersona,TipoDeEmpresa,Perfil,RUTdeEmpresa,RUTdeRepresentante) VALUES
+	(1,'ANID','2005-06-23',7,'N/A',1,1,3,'60.915.000-9','14.131.587-0'),
+	(2,'CORFO','2005-06-23',7,'N/A',1,1,3,'60.706.000-2','78.i39.379-3'),
+	(3,'FondosGob','2005-06-23',7,'N/A',1,1,3,'60.801.000-9','60.801.000-9');
+/*
+Estado en el que se encuentra un fondo o instrumento.
+*/
+CREATE TABLE EstadoDeFondo (
+	ID bigint NOT NULL,
+	Codigo varchar(3) NOT NULL,
+	Nombre varchar(40) NOT NULL,
+	PRIMARY KEY (ID)
+);
+INSERT INTO EstadoDeFondo (ID, Codigo, Nombre)
+VALUES
+	(1,"PRX","Proximo"),
+	(2,"ABI","Abierto"),
+	(3,"EVA","En evaluacion"),
+	(4,"ADJ","Adjudicado"),
+	(5,"SUS","Suspendido"),
+	(6,"PAY","Patrocinio Institucional"),
+	(7,"DES","Desierto"),
+	(8,"CER","Cerrrado");
+/*
+Tipo de beneficio que otorga cierto fondo o instrumento.
+*/
+CREATE TABLE TipoDeBeneficio (
+	ID bigint NOT NULL,
+	Codigo varchar(3) NOT NULL,
+	Nombre varchar(50) NOT NULL,
+	PRIMARY KEY (ID)
+);
+INSERT INTO TipoDeBeneficio (ID, Codigo, Nombre)
+VALUES
+	(1,"CAP","Capacitacion"),
+	(2,"RIE","Capital de riesgo"),
+	(3,"CRE","Creditos"),
+	(4,"GAR","Garantias"),
+	(5,"MUJ","Incentivo mujeres"),
+	(6,"OTR","Otros incentivos"),
+	(7,"SUB","Subsidios"),
+	(8,"HUM","Capital Humano"),
+	(9,"INV","Proyectos de Investigación"),
+	(10,"CEA","Centros e Investigación Asociativa"),
+	(11,"IAP","Investigación Aplicada"),
+	(12,"REC","Redes, Estrategia y Conocimiento");
+/*
+Clase que representa los fondos concursables a los que los proyectos pueden postular.
+Esta clase contiene todos los parametros y requisitos que dictan la posterior evaluacion.
+Representa tanto los fondos actuales como los historicos, en donde la fecha de cierre
+indica a cual de los dos corresponde.
+Recursos de fondos historicos:
+http://wapp.corfo.cl/transparencia/home/Subsidios.aspx
+https://github.com/ANID-GITHUB?tab=repositories
+https://datainnovacion.cl/api
+*/
+CREATE TABLE Instrumento (
+	ID bigint NOT NULL AUTO_INCREMENT,
+	Titulo varchar(200) NOT NULL,
+	Financiador bigint NOT NULL,
+	Alcance bigint NOT NULL,
+	Descripcion varchar(1000) NOT NULL,
+	FechaDeApertura date NOT NULL,
+	FechaDeCierre date NOT NULL,
+	FechaDeResultado date NULL,
+	DuracionEnMeses int NOT NULL,
+	Beneficios varchar(1000) NULL,
+	Requisitos varchar(1000) NULL,
+	MontoMinimo int NOT NULL,
+	MontoMaximo int NOT NULL,
+	Estado bigint NOT NULL,
+	TipoDeBeneficio bigint NOT NULL,
+	TipoDePerfil bigint NOT NULL,
+	ObjetivoGeneral varchar(1000) NULL,
+	ObjetivoEspecifico varchar(1000) NULL,
+	ResultadoEsperado varchar(1000) NULL,
+	EnlaceDelDetalle varchar(300) NULL,
+	EnlaceDeLaFoto varchar(300) NULL,
+	PRIMARY KEY (ID),
+	FOREIGN KEY (Alcance) REFERENCES Region(ID),
+	FOREIGN KEY (Estado) REFERENCES EstadoDeFondo(ID),
+	FOREIGN KEY (TipoDeBeneficio) REFERENCES TipoDeBeneficio(ID),
+	FOREIGN KEY (TipoDePerfil) REFERENCES TipoDePerfil(ID),
+	FOREIGN KEY (Financiador) REFERENCES Financiador(ID)
+);
+
+/*
+Vista que muestra los instrumentos en formato legible
+*/
+CREATE VIEW VerTodosLosInstrumentos AS SELECT
+	Instrumento.Titulo,
+	Financiador.Nombre AS Financiador,
+	Region.Nombre AS Alcance,
+	Instrumento.Descripcion,
+	Instrumento.FechaDeApertura,
+	Instrumento.FechaDeCierre,
+	Instrumento.DuracionEnMeses,
+	Instrumento.Beneficios,
+	Instrumento.Requisitos,
+	Instrumento.MontoMinimo,
+	Instrumento.MontoMaximo,
+	EstadoDeFondo.Nombre AS Estado,
+	TipoDeBeneficio.Nombre AS TipoDeBeneficio,
+	TipoDePerfil.Nombre AS TipoDePerfil,
+	Instrumento.ObjetivoGeneral,
+	Instrumento.ObjetivoEspecifico,
+	Instrumento.ResultadoEsperado,
+	Instrumento.EnlaceDelDetalle,
+	Instrumento.EnlaceDeLaFoto
+FROM
+	Instrumento, Financiador, Region,
+	EstadoDeFondo, TipoDeBeneficio, TipoDePerfil
+WHERE
+	Financiador.ID=Instrumento.Financiador AND
+	Region.ID=Instrumento.Alcance AND
+	EstadoDeFondo.ID=Instrumento.Estado AND
+	TipoDeBeneficio.ID=Instrumento.TipoDeBeneficio AND
+	TipoDePerfil.ID=Instrumento.TipoDePerfil;
+/*
+Clase que representa los estados en los que se puede encontrar una postulacion.
+Los resultados solo pueden caer dentro de las tres categorias.
+*/
+CREATE TABLE Resultado (
+	ID bigint NOT NULL,
+	Codigo varchar(3) NOT NULL,
+	Nombre varchar(30) NOT NULL,
+	PRIMARY KEY (ID)
+);
+INSERT INTO Resultado (ID, Codigo, Nombre)
+VALUES
+	(1,"ADJ","Adjudicado"),
+	(2,"REC","Rechazado"),
+	(3,"PEN","Pendiente");
+/*
+Clase que representa las postulaciones de un proyecto a un fondo
+https://registros19862.gob.cl/
+*/
+CREATE TABLE Postulacion (
+	ID bigint NOT NULL AUTO_INCREMENT,
+	Beneficiario bigint NOT NULL,
+	Proyecto bigint NOT NULL,
+	Instrumento bigint NOT NULL,
+	Resultado bigint NOT NULL default 3,
+	MontoObtenido int NOT NULL,
+	FechaDePostulacion date NULL,
+	FechaDeResultado date NULL,
+	Detalle varchar(2000) NULL,
+	PRIMARY KEY (ID),
+	FOREIGN KEY (Beneficiario) REFERENCES Beneficiario(ID),
+	FOREIGN KEY (Proyecto) REFERENCES Proyecto(ID),
+	FOREIGN KEY (Instrumento) REFERENCES Instrumento(ID),
+	FOREIGN KEY (Resultado) REFERENCES Resultado(ID)
+);
+
+CREATE VIEW VerTodasLasPostulaciones AS SELECT
+	Postulacion.Beneficiario,
+	Postulacion.Proyecto,
+	Postulacion.Instrumento,
+	Postulacion.Resultado,
+	Postulacion.MontoObtenido,
+	Postulacion.FechaDePostulacion,
+	Postulacion.FechaDeResultado,
+	Postulacion.Detalle
+FROM Postulacion;
+/*
+Clase que representa la idea para un proyecto
+*/
+CREATE TABLE Idea (
+	ID bigint NOT NULL AUTO_INCREMENT,
+	Usuario bigint NOT NULL,
+	Campo varchar(1000) NOT NULL,
+	Problema varchar(1000) NOT NULL,
+	Publico varchar(1000) NOT NULL,
+	Innovacion varchar(1000) NOT NULL,
+	Oculta boolean NULL default false,
+	FechaDeCreacion date NULL,
+	UltimaFechaDeModificacion date NULL,
+	PRIMARY KEY (ID),
+	FOREIGN KEY (Usuario) REFERENCES Usuario(ID)
+);
+
+CREATE VIEW VerTodasLasIdeas AS SELECT
+	Idea.Usuario,
+	Idea.Campo,
+	Idea.Problema,
+	Idea.Publico,
+	Idea.Innovacion,
+	Idea.Oculta,
+	Idea.FechaDeCreacion,
+	Idea.UltimaFechaDeModificacion
+FROM Idea;
+/*
+Clase que representa la propuesta de la IA tras recibir una idea
+*/
+CREATE TABLE Propuesta (
+	ID bigint NOT NULL AUTO_INCREMENT,
+	Idea bigint NOT NULL,
+	Resumen varchar(3000) NOT NULL,
+	PRIMARY KEY (ID),
+	FOREIGN KEY (Idea) REFERENCES Idea(ID)
+);
+INSERT INTO Persona (ID, Nombre, Sexo, RUT, FechaDeNacimiento) VALUES
+(1,'JULIO CESAR GIDDINGS CANDIA',1,'8.973.685-4','1962-01-01'),
+(2,'BEATRIZ EDITH ARAYA ARANCIBIA',2,'10.663.051-8','1967-01-01'),
+(3,'RENZON ANDRES BUSTOS ROMERO',1,'15.334.942-8','1983-01-01'),
+(4,'NICOLAS SEBASTIAN BUSTOS ROMERO',1,'16.355.444-5','1986-01-01'),
+(5,'RODRIGO CHRISTOPHER BUSTOS ROMERO',1,'15.735.857-K','1984-01-01'),
+(6,'RENZON SALVADOR BUSTOS VALENZUELA',1,'7.360.527-K','1956-01-01'),
+(7,'MIGUEL ANGEL ZACARIAS ABARA HALABI',1,'7.251.437-8','1956-01-01'),
+(8,'CALEB OTONIEL ARAYA CASTILLO',1,'10.521.624-6','1967-01-01'),
+(10,'Maximiliano Bardi',1,'21.030.899-7','2002-08-26'),
+(19,'Maximiliano Bardi',1,'21.030.899-7','2004-10-15'),
+(25,'Andres Gordillo',1,'10.000.000-5','2000-01-01'),
+(26,'Vicente Figueora',1,'22.222.222-0','2000-12-12'),
+(27,'Sebastian Borja',1,'21.211.122-9','2000-10-10'),
+(28,'Blas del Fierro',2,'33.333.333-9','1999-10-10'),
+(34,'Miguel Angel Soto Oyarzún',1,'9.238.295-8','1967-09-18'),
+(38,'Miguel Soto Delgado',1,'20.430.363-0','2000-04-07'),
+(40,'Alvaro Opazo',1,'20.435.337-9','2000-09-24'),
+(43,'Miguel Soto',1,'20.430.363-0','2000-07-04'),
+(45,'Vicente Alvear',1,'20.557.229-5','2000-07-25'),
+(47,'Javiera Osorio',2,'20.966.993-5','2002-05-06'),
+(48,'Nicolás Barahona',1,'21.037.987-8','2002-06-09'),
+(49,'Hernan Benavente',1,'11.111.111-1','1985-12-12'),
+(50,'Marcello Visconti',1,'22.999.666-9','1965-10-10'),
+(51,'Daniel Herrera',2,'20.200.200-2','2000-02-02'),
+(53,'Romi Gladys',2,'20.123.123-1','2003-03-12'),
+(54,'Esteban Zapata',1,'10.100.100-1','1985-04-04'),
+(55,'Bernardo Pinninghoff',1,'10.999.999-9','2000-07-07'),
+(57,'Catalina Seguel',2,'20.222.222-2','2002-02-02');
+
+INSERT INTO Usuario (ID, NombreDeUsuario, Contrasena, Correo, Persona) VALUES
+(9,'tututuru@max.cl','12345678!','tututuru@max.cl',19),
+(20,'matchafunding@gmail.com','Umami1939!','matchafunding@gmail.com',43);
+
+INSERT INTO Beneficiario (ID,Nombre,FechaDeCreacion,RegionDeCreacion,Direccion,TipoDePersona,TipoDeEmpresa,Perfil,RUTdeEmpresa,RUTdeRepresentante) VALUES
+(1,'ASOCIACION CHILE DISENO ASOCIACION GREMIAL','2025-01-01',17,'N/A',2,4,1,'507412300','507412300'),
+(2,'AGRICOLA JULIO GIDDINGS E I R L','2025-01-01',17,'N/A',2,4,1,'520014225','520014225'),
+(3,'BEATRIZ EDITH ARAYA ARANCIBIA ASESORIAS EN TECNOLOGIAS DE INFORMACION SPA','2025-01-01',17,'N/A',2,4,1,'52001578-7','52001578-7'),
+(4,'SAENS POLIMEROS Y REVESTIMIENTOS LIMITADA','2025-01-01',17,'N/A',2,4,1,'520035087','520035087'),
+(5,'LACTEOS CHAUQUEN SPA','2025-01-01',17,'N/A',2,4,1,'52004143-5','52004143-5'),
+(6,'CALEB OTONIEL ARAYA CASTILLO SPA','2025-01-01',17,'N/A',2,4,1,'52004346-2','52004346-2'),
+(7,'IQUIQUE TELEVISION PRODUCCIONES TELEVISIVAS Y EVENTOS LIMITADA','2025-01-01',17,'N/A',2,4,1,'520046666','520046666'),
+(8,'ALEJANDRO MARIO CAEROLS SILVA EIRL','2025-01-01',17,'N/A',2,4,1,'520050310','520050310'),
+(9,'OSCAR ALCIDES TORRES CORTES E.I.R.L.','2025-01-01',17,'N/A',2,4,1,'520054642','520054642'),
+(10,'SOCIEDAD AGRICOLA Y VIVERO SAN RAFAEL LIMITADA','2025-01-01',17,'N/A',2,4,1,'53306574-0','53306574-0'),
+(11,'FUNDACION DESAFIO','2025-01-01',17,'N/A',2,4,1,'533090079','533090079'),
+(12,'FUNDACION BASURA','2025-01-01',17,'N/A',2,4,1,'53323226-4','53323226-4'),
+(13,'FRIMA S A','2025-01-01',17,'N/A',2,4,1,'590291404','590291404'),
+(14,'ACCIONA CONSTRUCCION S.A. AGENCIA CHILE','2025-01-01',17,'N/A',2,4,1,'59069860-1','59069860-1'),
+(15,'ENYSE AGENCIA CHILE S A','2025-01-01',17,'N/A',2,4,1,'591087800','591087800'),
+(16,'ANGLO AMERICAN TECHNICAL & SUSTAINABILITY SERVICES LTD - AGENCIA EN CHILE','2025-01-01',17,'N/A',2,4,1,'592803909','592803909'),
+(17,'LABORELEC LATIN AMERICA','2025-01-01',17,'N/A',2,4,1,'5928196-0','5928196-0'),
+(18,'INSTITUTO ANTARTICO CHILENO','2025-01-01',17,'N/A',2,4,1,'606050003','606050003'),
+(19,'INSTITUTO NACIONAL DE ESTADISTICAS','2025-01-01',17,'N/A',2,4,1,'607030006','607030006'),
+(20,'CASA DE MONEDA DE CHILE S.A.','2025-01-01',17,'N/A',2,4,1,'608060006','608060006'),
+(21,'SERVICIO NACIONAL DEL PATRIMONIO CULTURAL','2025-01-01',17,'N/A',2,4,1,'609050004','609050004'),
+(22,'UNIVERSIDAD DE CHILE','2025-01-01',17,'N/A',2,4,1,'609100001','609100001'),
+(23,'UNIVERSIDAD DE SANTIAGO DE CHILE','2025-01-01',17,'N/A',2,4,1,'609110007','609110007'),
+(24,'UNIVERSIDAD DEL BIO BIO','2025-01-01',17,'N/A',2,4,1,'609110066','609110066'),
+(25,'UNIVERSIDAD DE VALPARAISO','2025-01-01',17,'N/A',2,4,1,'609210001','609210001'),
+(26,'ACADEMIA POLITECNICA MILITAR','2025-01-01',17,'N/A',2,4,1,'61.101.021-4','61.101.021-4'),
+(27,'INSTITUTO DE FOMENTO PESQUERO','2025-01-01',17,'N/A',2,4,1,'613100008','613100008'),
+(28,'INSTITUTO FORESTAL','2025-01-01',17,'N/A',2,4,1,'613110003','613110003'),
+(29,'INSTITUTO DE INVESTIGACIONES AGROPECUARIAS','2025-01-01',17,'N/A',2,4,1,'613120009','613120009'),
+(30,'AGUAS ANDINAS S A','2025-01-01',17,'N/A',2,4,1,'618080005','618080005'),
+(31,'CENTRO DEL AGUA PARA ZONAS ARIDAS Y SEMIARIDAS DE AMERICA LATINA','2025-01-01',17,'N/A',2,4,1,'619686004','619686004'),
+(32,'UNIVERSIDAD DE O\'HIGGINS','2025-01-01',17,'N/A',2,4,1,'61980530-5','61980530-5'),
+(33,'FUNDACION PATRIMONIO NUESTRO','2025-01-01',17,'N/A',2,4,1,'650028449','650028449'),
+(34,'ASOCIACION GREMIAL DE PRODUCTORES DE OVINOS DE LA NOVENA REGION - OVINOS ARAUCAN','2025-01-01',17,'N/A',2,4,1,'650030354','650030354'),
+(35,'FUNDACION SNP PATAGONIA SUR','2025-01-01',17,'N/A',2,4,1,'650034244','650034244'),
+(36,'FUNDACION SENDERO DE CHILE','2025-01-01',17,'N/A',2,4,1,'650164067','650164067'),
+(37,'PEQUENOS Y MEDIANOS INDUSTRIALES MADEREROS DEL BIO BIO A.G.','2025-01-01',17,'N/A',2,4,1,'650175484','650175484'),
+(38,'ASOCIACION GREMIAL DE CANALES REGIONALES DE TELEVISION DE SENAL ABIERTA DE CHILE','2025-01-01',17,'N/A',2,4,1,'65018149-2','65018149-2'),
+(39,'FEDERACION DE EMPRESAS DE TURISMO DE CHILE - FEDERACION GREMIAL','2025-01-01',17,'N/A',2,4,1,'650195086','650195086'),
+(40,'FUNDACION URBANISMO SOCIAL','2025-01-01',17,'N/A',2,4,1,'650222784','650222784'),
+(41,'ASOC CHILENA DE ORGANIZACIONES DE FERIAS LIBRES ASOF A G','2025-01-01',17,'N/A',2,4,1,'65024560-1','65024560-1'),
+(42,'FUNDACION BANIGUALDAD','2025-01-01',17,'N/A',2,4,1,'650251504','650251504'),
+(43,'FUNDACION PROCULTURA','2025-01-01',17,'N/A',2,4,1,'650262166','650262166'),
+(44,'ASOCIACION GREMIAL DE EMPRESAS DE LA CIRUELA DESHIDRATADA','2025-01-01',17,'N/A',2,4,1,'650269551','650269551'),
+(45,'ASOCIACION GREMIAL CHILENA DE DESARROLLADORES DE VIDEOJUEGOS','2025-01-01',17,'N/A',2,4,1,'65027653-1','65027653-1'),
+(46,'VISION VALDIVIA,CAPITAL NAUTICA DEL PACIFICO SUR-ASOCIACION GREMIAL','2025-01-01',17,'N/A',2,4,1,'65029077-1','65029077-1'),
+(47,'AGENCIA CHILENA DE EFICIENCIA ENERGETICA','2025-01-01',17,'N/A',2,4,1,'65030848-4','65030848-4'),
+(48,'FUNDACION SERVICIO JESUITA A MIGRANTES','2025-01-01',17,'N/A',2,4,1,'650308921','650308921'),
+(49,'FUND JUVENTUD EMPRENDEDORA','2025-01-01',17,'N/A',2,4,1,'650324900','650324900'),
+(50,'FUNDACION FRAUNHOFER CHILE RESEARCH','2025-01-01',17,'N/A',2,4,1,'65033192-3','65033192-3'),
+(51,'ORGANIZACION NO GUBERNAMENTAL DE DESARROLLO CORPORACION DE DESARROLLO PHOENIX BR','2025-01-01',17,'N/A',2,4,1,'65034573-8','65034573-8'),
+(52,'SOCIEDAD GEOGRAFICA DE DOCUMENTACION ANDINA','2025-01-01',17,'N/A',2,4,1,'650348397','650348397'),
+(53,'CORPORACION CULTIVA','2025-01-01',17,'N/A',2,4,1,'65034868-0','65034868-0'),
+(54,'AGENCIA REGIONAL DE DESARROLLO PRODUCTIVO DE LA ARAUCANIA','2025-01-01',17,'N/A',2,4,1,'65034891-5','65034891-5'),
+(55,'ASOCIACION GREMIAL DE PROPIETARIOS, TENEDORES Y USUARIOS DE TIERRAS PRIVADAS Y D','2025-01-01',17,'N/A',2,4,1,'650349784','650349784'),
+(56,'ASOCIACION DE ARQUITECTOS Y PROFESIONALES POR EL PATRIMONIO DE VALPARAISO PLAN','2025-01-01',17,'N/A',2,4,1,'65041039-4','65041039-4'),
+(57,'FUNDACION GRANDES VALORES','2025-01-01',17,'N/A',2,4,1,'65041318-0','65041318-0'),
+(58,'ORGANIZACION NO GUBERNAMENTAL DE DESARROLLO SANTA MARIA','2025-01-01',17,'N/A',2,4,1,'65041820-4','65041820-4'),
+(59,'FUNDACION GANAMOS TODOS','2025-01-01',17,'N/A',2,4,1,'650421396','650421396'),
+(60,'CORPORACION REGIONAL DE DESARROLLO DE LA REGION DE TARAPACA','2025-01-01',17,'N/A',2,4,1,'650429044','650429044'),
+(61,'ASOCIACION GREMIAL DE EMPRENDEDORES EN CHILE A.G','2025-01-01',17,'N/A',2,4,1,'65046213-0','65046213-0'),
+(62,'ORGANIZACIÓN NO GUBERNAMENTAL DE DESARROLLO LA RUTA SOLAR EN LIQUIDACIÓN','2025-01-01',17,'N/A',2,4,1,'650505573','650505573'),
+(63,'FUNDACION IMPULSORA DE UN NUEVO SECTOR EN LA ECONOMIA SISTEMA B','2025-01-01',17,'N/A',2,4,1,'65052193-5','65052193-5'),
+(64,'ORGANIZACION NO GUBERNAMENTAL DE DESARROLLO CANALES U ONG CANALES','2025-01-01',17,'N/A',2,4,1,'65052395-4','65052395-4'),
+(65,'ASOCIACION NACIONAL DE EMPRESAS ESCOS, ANESCO CHILE A.G.','2025-01-01',17,'N/A',2,4,1,'65053196-5','65053196-5'),
+(66,'CENTRO DE INVESTIGACION DE POLIMEROS AVANZADOS, CIPA','2025-01-01',17,'N/A',2,4,1,'65053487-5','65053487-5'),
+(67,'CONSEJO DE INST. PROFESIONALES Y CENTROS DE FORMACION TECNICA A.G','2025-01-01',17,'N/A',2,4,1,'650544846','650544846'),
+(68,'PROPIETARIOS E INDUSTRIALES FORESTALES','2025-01-01',17,'N/A',2,4,1,'65054509-5','65054509-5'),
+(69,'FUNDACION INRIA CHILE','2025-01-01',17,'N/A',2,4,1,'650580443','650580443'),
+(70,'INSTITUTO DE NEUROCIENCIA BIOMEDICA','2025-01-01',17,'N/A',2,4,1,'65059721-4','65059721-4'),
+(71,'ASOCIACION DE MUNICIPALIDADES PARQUE CORDILLERA','2025-01-01',17,'N/A',2,4,1,'650604849','650604849'),
+(72,'FUNDACION DE BENEFICENCIA RECYCLAPOLIS','2025-01-01',17,'N/A',2,4,1,'65060486-5','65060486-5'),
+(73,'FUND CIENTIFICA Y CULTURAL BIOCIENCIA','2025-01-01',17,'N/A',2,4,1,'650612108','650612108'),
+(74,'CORPORACION PARA EL DESARROLLO DE MALLECO','2025-01-01',17,'N/A',2,4,1,'65062346-0','65062346-0'),
+(75,'CORPORACION CULTURAL ACONCAGUA SUMMIT','2025-01-01',17,'N/A',2,4,1,'65064666-5','65064666-5'),
+(79,'ASOCIACION INDIGENA AYMARA SUMA JUIRA DE CARIQUIMA','2025-01-01',17,'N/A',2,4,1,'650694422','650694422'),
+(80,'FUNDACION DEPORTE LIBRE','2025-01-01',17,'N/A',2,4,1,'650707044','650707044'),
+(81,'FUNDACION PARA EL TRABAJO UNIVERSIDAD ARTURO PRAT','2025-01-01',17,'N/A',2,4,1,'650718593','650718593'),
+(82,'CENTRO REGIONAL DE ESTUDIOS EN ALIMENTOS SALUDABLES','2025-01-01',17,'N/A',2,4,1,'650725166','650725166'),
+(83,'FUNDACION PARA EL DESARROLLO SUSTENTABLE DE FRUTILLAR','2025-01-01',17,'N/A',2,4,1,'65074257-5','65074257-5'),
+(84,'FUNDACION CSIRO-CHILE RESEARCH','2025-01-01',17,'N/A',2,4,1,'650756444','650756444'),
+(85,'CORPORACION YO TAMBIEN','2025-01-01',17,'N/A',2,4,1,'650766989','650766989'),
+(86,'O N G DE DESARROLLO CORPORACION DE DESARROLLO LONKO KILAPANG','2025-01-01',17,'N/A',2,4,1,'650776003','650776003'),
+(87,'CORPORACION MUNICIPAL DE TURISMO VICUNA','2025-01-01',17,'N/A',2,4,1,'65080284-5','65080284-5'),
+(88,'FUNDACION LEITAT CHILE','2025-01-01',17,'N/A',2,4,1,'65081283-2','65081283-2'),
+(89,'LO BARNECHEA EMPRENDE','2025-01-01',17,'N/A',2,4,1,'650816412','650816412'),
+(90,'FUNDACION CERROS ISLA','2025-01-01',17,'N/A',2,4,1,'65084846-2','65084846-2'),
+(91,'FUNDACION PATIO VIVO','2025-01-01',17,'N/A',2,4,1,'65086999-0','65086999-0'),
+(92,'CORPORACION CONSTRUYENDO MIS SUENOS','2025-01-01',17,'N/A',2,4,1,'65087946-5','65087946-5'),
+(93,'FUNDACION PARQUE CIENTIFICO TECNOLOGICO DE LA REGION DE ANTOFAGASTA','2025-01-01',17,'N/A',2,4,1,'650881222','650881222'),
+(94,'COOPERATIVA PESQUERA Y COMERCIALIZADORA CALETA SAN PEDRO','2025-01-01',17,'N/A',2,4,1,'650886666','650886666'),
+(95,'COOPERATIVA M-31 DE TONGOY','2025-01-01',17,'N/A',2,4,1,'650899466','650899466'),
+(96,'COOPERATIVA DE TRABAJO PARA EL DESARROLLO LOCAL Y LA ECONOMÍA SOLIDARIA','2025-01-01',17,'N/A',2,4,1,'65091056-7','65091056-7'),
+(97,'CORP. REG.. AYSEN DE INV. Y DES. COOPER. CENTRO DE INV.EN ECOSIST.DE LA PATAGONI','2025-01-01',17,'N/A',2,4,1,'650911466','650911466'),
+(98,'FUNDACION CENTRO DE ESTUDIOS DE MONTANA','2025-01-01',17,'N/A',2,4,1,'650922875','650922875'),
+(99,'FUNDACION LABORATORIO CAMBIO SOCIAL','2025-01-01',17,'N/A',2,4,1,'65092353-7','65092353-7'),
+(100,'FUNDACION TANTI','2025-01-01',17,'N/A',2,4,1,'65094167-5','65094167-5'),
+(101,'ASOCIACION CHILENA DE BIOMASA A.G','2025-01-01',17,'N/A',2,4,1,'65094557-3','65094557-3'),
+(102,'TAYON SPA','2025-01-01',17,'N/A',2,4,1,'77.822.744-4','77.822.744-4'),
+(103,'Instituto Milenio en Amoníaco Verde como Vector Energético (MIGA)','2023-01-01',7,'N/A',2,4,1,'65.225.271-0','65.225.271-0');
+
+INSERT INTO Instrumento (ID,Titulo,Financiador,Alcance,Descripcion,FechaDeApertura,FechaDeCierre,DuracionEnMeses,Beneficios,Requisitos,MontoMinimo,MontoMaximo,Estado,TipoDeBeneficio,TipoDePerfil,EnlaceDelDetalle,EnlaceDeLaFoto) VALUES
+(1,'DESARROLLA INVERSIÓN PRODUCTIVA – REGIÓN DE TARAPACÁ – CONVOCATORIA 2025',2,2,'Buscamos contribuir al desarrollo de la Región de Tarapacá mediante el crecimiento económico de sus empresas – pequeñas y medianas. Apoyando la materialización de proyectos de inversión productiva cofinanciando la adquisición de activo fijo, habilitación de infraestructura productiva y capital de trabajo.','2025-08-28','2025-09-16',0,'Corfo cofinanciará hasta el 60% del costo total de cada proyecto, con tope de $15.000.000, de acuerdo al tramo de inversión total del proyecto. Se podrá cofinanciar con el subsidio la adquisición de activo fijo, habilitación de infraestructura productiva y capital de trabajo. El porcentaje de capital de trabajo no podrá exceder del 20% del costo total del proyecto individual.','Tener RUT chileno',0,15000000,2,2,1,'https://corfo.cl/sites/cpp/convocatoria/dip-tarapaca-2025/',''),
+(2,'DESARROLLA INVERSIÓN PRODUCTIVA – REGIÓN DE TARAPACÁ – CONVOCATORIA 2025 COMERCIO Y LOGÍSTICA',2,2,'Buscamos contribuir al desarrollo de la Región de Tarapacá mediante el crecimiento económico de sus empresas – pequeñas y medianas. Apoyando la materialización de proyectos de inversión productiva cofinanciando la adquisición de activo fijo, habilitación de infraestructura productiva y capital de trabajo.','2025-08-28','2025-09-16',0,'Corfo cofinanciará hasta el 60% del costo total de cada proyecto, con tope de $15.000.000, de acuerdo al tramo de inversión total del proyecto. Se podrá cofinanciar con el subsidio la adquisición de activo fijo, habilitación de infraestructura productiva y capital de trabajo. El porcentaje de capital de trabajo no podrá exceder del 20% del costo total del proyecto individual.','Tener RUT chileno',0,15000000,2,2,1,'https://corfo.cl/sites/cpp/convocatoria/dip-tarapaca-comercio-logistica-2025/',''),
+(3,'DESARROLLA INVERSIÓN PRODUCTIVA – REGIÓN METROPOLITANA – 2° CONVOCATORIA 2025',2,7,'Apoyo a proyectos de inversión productiva con potencial de generación de externalidades positivas mediante un cofinanciamiento para la adquisición de activo fijo, infraestructura y capital de trabajo. El cofinanciamiento cubre hasta el 60% del costo total del proyecto, con un tope de $20.000.000.','2025-08-27','2025-09-10',1,'El cofinanciamiento cubre hasta el 60% del costo total del proyecto, con un tope de $20.000.000. Para cofinanciar capital de trabajo, se podrá destinar hasta un 20% del monto total de cofinanciamiento entregado por CDPR al proyecto.','Tener RUT chileno',0,20000000,2,1,1,'https://corfo.cl/sites/cpp/convocatoria/dip-metropolitana-segunda-convocatoria-2025/',''),
+(4,'PAR – REGIÓN DE TARAPACÁ – CONVOCATORIA 2025 COMERCIO Y LOGÍSTICA',2,2,'Buscamos mejorar el potencial productivo y fortalecer la gestión de las empresas y/o emprendedores de la región de Tarapacá, apoyando el desarrollo de sus competencias y capacidades y cofinanciando proyectos de inversión, que les permitan acceder a nuevas oportunidades de negocios y/o mantener los existentes.','2025-08-25','2025-09-11',0,'Corfo cofinanciará hasta el 80% del costo total de cada proyecto, con tope de $4.000.000. Se podrá cofinanciar con el subsidio la adquisición de activos, gastos operacionales como capacitaciones, insumos, planes de negocios, consultorías, asistencias técnicas y capital de trabajo. El porcentaje de capital de trabajo no podrá exceder del 20% del costo total del proyecto individual.','Tener RUT chileno',0,4000000,2,1,1,'https://corfo.cl/sites/cpp/convocatoria/par-tarapaca-comercio-logistica-2025/',''),
+(5,'PAR – REGIÓN DE TARAPACÁ – CONVOCATORIA 2025 PESCA Y AGRICULTURA',2,2,'Buscamos mejorar el potencial productivo y fortalecer la gestión de las empresas y/o emprendedores de la región de Tarapacá, apoyando el desarrollo de sus competencias y capacidades y cofinanciando proyectos de inversión, que les permitan acceder a nuevas oportunidades de negocios y/o mantener los existentes.','2025-08-25','2025-09-11',0,'Corfo cofinanciará hasta el 80% del costo total de cada proyecto, con tope de $4.000.000. Se podrá cofinanciar con el subsidio la adquisición de activos, gastos operacionales como capacitaciones, insumos, planes de negocios, consultorías, asistencias técnicas y capital de trabajo. El porcentaje de capital de trabajo no podrá exceder del 20% del costo total del proyecto individual.','Tener RUT chileno',0,4000000,2,1,1,'https://corfo.cl/sites/cpp/convocatoria/par-tarapaca-pesca-agricultura-2025/',''),
+(6,'PAR – REGIÓN DE TARAPACÁ – CONVOCATORIA 2025 PROVEEDORES DE LA MINERÍA',2,2,'Buscamos mejorar el potencial productivo y fortalecer la gestión de las empresas y/o emprendedores de la región de Tarapacá, apoyando el desarrollo de sus competencias y capacidades y cofinanciando proyectos de inversión, que les permitan acceder a nuevas oportunidades de negocios y/o mantener los existentes.','2025-08-25','2025-09-11',0,'Corfo cofinanciará hasta el 80% del costo total de cada proyecto, con tope de $4.000.000. Se podrá cofinanciar con el subsidio la adquisición de activos, gastos operacionales como capacitaciones, insumos, planes de negocios, consultorias, asistencias técnicas y capital de trabajo. El porcentaje de capital de trabajo no podrá exceder del 20% del costo total del proyecto individual.','Tener RUT chileno',0,4000000,2,1,1,'https://corfo.cl/sites/cpp/convocatoria/par-tarapaca-proveedores-mineria-2025/',''),
+(7,'PAR – REGIÓN DE TARAPACÁ – CONVOCATORIA 2025 TURISMO',2,2,'Buscamos mejorar el potencial productivo y fortalecer la gestión de las empresas y/o emprendedores de la región de Tarapacá, apoyando el desarrollo de sus competencias y capacidades y cofinanciando proyectos de inversión, que les permitan acceder a nuevas oportunidades de negocios y/o mantener los existentes.','2025-08-25','2025-09-10',0,'Corfo cofinanciará hasta el 80% del costo total de cada proyecto, con tope de $4.000.000. Se podrá cofinanciar con el subsidio la adquisición de activos, gastos operacionales como capacitaciones, insumos, planes de negocios, consultorías, asistencias técnicas y capital de trabajo. El porcentaje de capital de trabajo no podrá exceder del 20% del costo total del proyecto individual.','Tener RUT chileno',0,4000000,2,1,1,'https://corfo.cl/sites/cpp/convocatoria/par-tarapaca-turismo-2025/',''),
+(8,'RED DE ASISTENCIA DIGITAL FORTALECE PYME – REGIÓN DE LA ARAUCANÍA – 1° CONVOCATORIA 2025',2,12,'La Red de Asistencia Digital Fortalece Pyme busca contribuir a que las Pymes aumenten sus ingresos y/o mejoren sus niveles de productividad. Esta convocatoria busca proyectos que contemplen la incorporación de tecnologías digitales en los beneficiarios atendidos de sectores económicos vinculados a Turismo, Agropecuario, Silvícola, Pesca y Acuicultura, Construcción, Manufactura, Tecnologías de Información y Comunicaciones, Energía e Industrias Creativas.','2025-08-19','2025-09-22',3,'El cofinanciamiento cubre hasta el 80% del costo total del proyecto. El monto restante debe ser aportado por los participantes y al menos, el 5% del costo total del proyecto debe ser pecuniario.','Tener RUT chileno',0,600000000,2,2,1,'https://corfo.cl/sites/cpp/convocatoria/red-asistencia-digital-fortalece-pyme-araucania-1ra-2025/',''),
+(9,'RED DE ASISTENCIA DIGITAL FORTALECE PYME – REGIÓN DE LOS RÍOS – 1° CONVOCATORIA 2025',2,13,'La Red de Asistencia Digital Fortalece Pyme busca contribuir a que las Pymes de todos los sectores económicos de la región, aumenten sus ingresos y/o mejoren sus niveles de productividad a través de la adopción y utilización de tecnologías digitales en sus procesos de negocio (productivos, de gestión y/o comerciales), mediante el apoyo a la operación de proyectos ‘Red de Asistencia Digital Fortalece Pyme, FPyme’ que entregarán servicios en dichos ámbitos.','2025-08-19','2025-09-22',3,'El cofinanciamiento cubre hasta el 80% del costo total del proyecto. El monto restante debe ser aportado por los participantes y al menos, el 5% del costo total del proyecto debe ser pecuniario.','Tener RUT chileno',0,600000000,2,2,1,'https://corfo.cl/sites/cpp/convocatoria/red-asistencia-digital-fortalece-pyme-los-rios-1ra-2025/',''),
+(10,'RED DE ASISTENCIA DIGITAL FORTALECE PYME – REGIÓN DE ÑUBLE – 1° CONVOCATORIA 2025',2,10,'La Red de Asistencia Digital Fortalece Pyme busca contribuir a que las Pymes aumenten sus ingresos y/o mejoren sus niveles de productividad. Esta convocatoria busca proyectos que contemplen la incorporación de tecnologías digitales en los beneficiarios atendidos de sectores económicos vinculados a agropecuario – silvícola, construcción, industria manufacturera, turismo y comercio.','2025-08-19','2025-09-22',3,'El cofinanciamiento cubre hasta el 80% del costo total del proyecto. El monto restante debe ser aportado por los participantes y al menos, el 5% del costo total del proyecto debe ser pecuniario.','Tener RUT chileno',0,600000000,2,2,1,'https://corfo.cl/sites/cpp/convocatoria/red-asistencia-digital-fortalece-pyme-nuble-1ra-2025/',''),
+(11,'RED DE ASISTENCIA DIGITAL FORTALECE PYME – REGIÓN DE O’HIGGINS – 1° CONVOCATORIA 2025',2,8,'La Red de Asistencia Digital Fortalece Pyme busca contribuir a que las Pymes aumenten sus ingresos y/o mejoren sus niveles de productividad. Esta convocatoria busca proyectos que contemplen la incorporación de tecnologías digitales en los beneficiarios atendidos, Pymes, de todos los sectores económicos de la región, priorizando durante el primer año de ejecución la búsqueda y atención de empresas de los sectores vinculados a la minería, agricultura, manufactura y turismo.','2025-08-19','2025-09-22',3,'El cofinanciamiento cubre hasta el 80% del costo total del proyecto. El monto restante debe ser aportado por los participantes y al menos, el 5% del costo total del proyecto debe ser pecuniario.','Tener RUT chileno',0,600000000,2,1,1,'https://corfo.cl/sites/cpp/convocatoria/red-asistencia-digital-fortalece-pyme-ohiggins-1ra-2025/',''),
+(12,'RED DE ASISTENCIA DIGITAL FORTALECE PYME – REGIÓN DE VALPARAÍSO – 1° CONVOCATORIA 2025',2,6,'La Red de Asistencia Digital Fortalece Pyme busca contribuir a que las Pymes aumenten sus ingresos y/o mejoren sus niveles de productividad. Esta convocatoria busca proyectos que contemplen la incorporación de tecnologías digitales en los beneficiarios atendidos de sectores económicos vinculados a a la agricultura y manufactura (este último, vinculado a la agroindustria alimentaria).','2025-08-19','2025-09-22',3,'El cofinanciamiento cubre hasta el 80% del costo total del proyecto. El monto restante debe ser aportado por los participantes y al menos, el 5% del costo total del proyecto debe ser pecuniario.','Tener RUT chileno',0,600000000,2,1,1,'https://corfo.cl/sites/cpp/convocatoria/red-asistencia-digital-fortalece-pyme-valparaiso-1ra-2025/',''),
+(13,'RED DE ASISTENCIA DIGITAL FORTALECE PYME – REGIÓN DEL MAULE – 1° CONVOCATORIA 2025',2,16,'La Red de Asistencia Digital Fortalece Pyme busca contribuir a que las Pymes aumenten sus ingresos y/o mejoren sus niveles de productividad. Esta convocatoria busca proyectos que contemplen la incorporación de tecnologías digitales en los beneficiarios atendidos de sectores económicos vinculados a agropecuario – silvícola, manufactura, construcción y turismo.','2025-08-19','2025-09-22',3,'El cofinanciamiento cubre hasta el 80% del costo total del proyecto. El monto restante debe ser aportado por los participantes y al menos, el 5% del costo total del proyecto debe ser pecuniario.','Tener RUT chileno',0,600000000,2,2,1,'https://corfo.cl/sites/cpp/convocatoria/red-asistencia-digital-fortalece-pyme-maule-1ra-2025/',''),
+(14,'PRIMER CONCURSO PDT REGIÓN DE COQUIMBO',2,5,'El objetivo es contribuir al cierre de brechas de productividad del sector empresarial, de preferencia Pymes, de la región de Coquimbo, a través de la difusión de tecnologías y mejores prácticas innovadoras, con el propósito de fomentar su adopción y potenciar la competitividad de un grupo de empresas de una industria o sector que enfrentan una problemática común.','2025-08-14','2025-09-15',0,'InnovaChile cofinanciará hasta el 70,0% del costo total del proyecto, con un tope de hasta $90.000.000.- (noventa millones de pesos). El aporte restante del 30% como mínimo del costo total del proyecto, puede ser pecuniario y valorado.','',0,90000000,2,2,1,'https://corfo.cl/sites/cpp/convocatoria/primer-concurso-pdt-coquimbo-2025/',''),
+(15,'SEGUNDO CONCURSO PDT VIENTO NORTE',2,5,'El objetivo es contribuir al cierre de brechas de productividad del sector empresarial, de preferencia Pymes, a través de la difusión de tecnologías y mejores prácticas innovadoras, con el propósito de fomentar su adopción y potenciar la competitividad de un grupo de empresas de una industria o sector que enfrentan una problemática común, fomentando el triple impacto (económico, social, medioambiental).','2025-08-14','2025-09-15',1,'InnovaChile cofinanciará hasta el 70,00% del costo total del proyecto, con un tope de hasta $90.000.000. (noventa millones de pesos). El aporte restante del 30% como mínimo del costo total del proyecto, puede ser pecuniario y valorado.','Ser persona natural o jurídica',0,90000000,2,2,1,'https://corfo.cl/sites/cpp/convocatoria/segundo-concurso-pdt-viento-norte-coquimbo-2025/',''),
+(16,'RED DE FOMENTO SOSTENIBLE – CONVOCATORIA 2025, CONSTRUCCIÓN SUSTENTABLE',2,11,'Queremos que las Pymes puedan aumentar sus ingresos y/o mejoren su productividad, a través del acceso a servicios de extensionismo tecnológico que les permitan adoptar y utilizar tecnologías, mediante el cofinanciamiento de la operación de proyectos \"Red de Fomento Sostenible\" que entregarán servicios en dicho ámbito a Pymes del sector de la construcción.','2025-08-14','2025-09-22',0,'El cofinanciamiento cubre hasta el 80% del costo total del proyecto.','Tener RUT chileno',0,900000000,2,1,1,'https://corfo.cl/sites/cpp/convocatoria/red-fomento-sostenible-construccion-sustentable-2025/',''),
+(17,'RED DE FOMENTO SOSTENIBLE – CONVOCATORIA 2025, PESCA Y ACUICULTURA',2,15,'Queremos que las Pymes puedan aumentar sus ingresos y/o mejoren su productividad, a través del acceso a servicios de extensionismo tecnológico que les permitan adoptar y utilizar tecnologías, mediante el cofinanciamiento de la operación de proyectos \"Red de Fomento Sostenible\" que entregarán servicios en dicho ámbito a Pymes del sector de la pesca y acuicultura.','2025-08-14','2025-09-22',0,'El cofinanciamiento cubre hasta el 80% del costo total del proyecto.','Tener RUT chileno',0,900000000,2,1,1,'https://corfo.cl/sites/cpp/convocatoria/red-fomento-sostenible-pesca-acuicultura-2025/',''),
+(18,'RED MERCADOS – REGIÓN DE LA ARAUCANÍA – 2° CONVOCATORIA 2025 ETAPA DIAGNÓSTICO',2,12,'Red Mercados apoya a grupos de empresas a incorporar capacidades y conocimientos para acceder, directa o indirectamente a mercados internacionales.','2025-08-13','2025-09-03',2,'Corfo/Comité de Desarrollo Productivo Regional financiará hasta $4.000.000.- (cuatro millones de pesos) de la Etapa de Diagnóstico, por proyecto. El plazo máximo de ejecución será de hasta 2 (dos) meses. El plazo podrá ser prorrogado, previa solicitud presentada antes del vencimiento. El plazo total del proyecto (incluidas sus prórrogas) no podrá superar los 3 (tres) meses.','Tener RUT chileno',0,4000000,2,2,1,'https://corfo.cl/sites/cpp/convocatoria/red-mercados-araucania-segunda-convocatoria-diagnostico-2025/',''),
+(19,'DESARROLLA INVERSIÓN PRODUCTIVA –REGIÓN DE COQUIMBO – 2° CONVOCATORIA 2025',2,5,'El llamado a concurso se focalizará temáticamente, por lo que sólo podrán postular proyectos de inversión productiva con potencial de generación de externalidades positivas, contribución al crecimiento sostenible y la reactivación económica de la Región de Coquimbo, mediante la adquisición de activo fijo, habilitación de infraestructura productiva y/o equipamiento tecnológico en etapas relevantes del proceso productivo.','2025-08-11','2025-09-01',1,'Corfo cofinanciará hasta el 60% del costo total de cada proyecto, con tope de $50.000.000, de acuerdo con el tramo de inversión total del proyecto indicado en la resolución de focalización de esta convocatoria (revisar bases). El porcentaje de capital de trabajo no podrá exceder del 20% del costo total del proyecto individual.','Tener RUT chileno',0,5000000,2,2,1,'https://corfo.cl/sites/cpp/convocatoria/dip-coquimbo-segunda-convocatoria-2025/',''),
+(20,'DESARROLLA INVERSIÓN PRODUCTIVA –REGIÓN DE COQUIMBO – 3° CONV. 2025, TERRITORIOS VIENTO NORTE',2,5,'El llamado a concurso se focalizará temáticamente, por lo que sólo podrán postular proyectos de inversión productiva con potencial de generación de externalidades positivas, contribución al crecimiento sostenible y la reactivación económica de las comunas de Vicuña, Andacollo, La Higuera, Río Hurtado, mediante la adquisición de activo fijo, habilitación de infraestructura productiva y/o equipamiento tecnológico en etapas relevantes del proceso productivo.','2025-08-11','2025-09-01',1,'Corfo cofinanciará hasta el 70% del costo total de cada proyecto, con tope de $50.000.000. Se podrá cofinanciar con el subsidio la adquisición de activo fijo, habilitación de infraestructura productiva y capital de trabajo. El porcentaje de capital de trabajo no podrá exceder del 20% del costo total del proyecto individual.','Tener RUT chileno',0,50000000,2,1,1,'https://corfo.cl/sites/cpp/convocatoria/dip-coquimbo-tercera-convocatoria-territorios-viento-norte-2025/',''),
+(21,'RED ASOCIATIVA – 1° CONV. ZONAL 2025 DESARROLLO SILVOAGROPECUARIO SUSTENTABLE, ETAPA DIAGNÓSTICO',2,1,'Red Asociativa busca contribuir al aumento de la competitividad de un grupo de al menos 3 empresas, para mejorar su oferta de valor y acceder a nuevos mercados, a través del cofinanciamiento de proyectos asociativos que incorporen mejoras en gestión, productividad, sustentabilidad e innovación.','2025-01-01','2025-12-31',8,'Corfo cofinanciará hasta un 70% del costo total de la Etapa de Diagnóstico, con un tope de $8.000.000, por proyecto. La Etapa de diagnóstico se podrá extender por hasta 6 meses, prorrogable hasta 8 meses.','Tener RUT chileno',0,8000000,3,2,1,'https://corfo.cl/sites/cpp/convocatoria/red-asociativa-desarrollo-silvoagropecuario-sustentable-diagnostico-2025/',''),
+(22,'RED ASOCIATIVA AGRO+ – 1° CONV. ZONAL 2025 DESARROLLO SILVOAGROPECUARIO SUSTENTABLE',2,1,'Red Asociativa AGRO+”, fomenta el cooperativismo, a través de: Beneficio: Corfo/Comité de Desarrollo Productivo Regional cofinanciará hasta un 80% del costo total de la Etapa de Diagnóstico, con un tope de $10.000.000.- (diez millones de pesos), por proyecto. Finalizada la Etapa de Diagnóstico, el proyecto podrá postular a la Etapa de Desarrollo, cuyo financiamiento será de hasta un 80% del costo total de la Etapa, con un tope para cada periodo de $45.000.000.- (cuarenta y cinco millones de pesos) por proyecto.','2025-01-01','2025-12-31',0,'Capacitación, Inversión en infraestructura','Tener RUT chileno, Estar insrito en un programa x',0,45000000,3,1,5,'https://corfo.cl/sites/cpp/convocatoria/red-asociativa-agro-desarrollo-silvoagropecuario-sustentable-diagnostico-2025/',''),
+(23,'RED TECNOLÓGICA GTT – 1° CONV. ZONAL 2025 DESARROLLO SILVOAGROPECUARIO SUSTENTABLE',2,12,'Red Tecnológica GTT+ busca que grupos de entre 10 y 15 empresas puedan, a través del intercambio entre pares y asistencias técnicas, cerrar brechas tecnológicas y de gestión, incorporando herramientas y mejores prácticas productivas, fomentando la construcción de alianzas entre los empresarios, mejorar su productividad y posición competitiva.','2025-01-01','2025-12-31',0,'Corfo otorgará, para la ejecución de la Etapa de Desarrollo un cofinanciamiento de hasta un 80% del costo total de la Etapa con un tope para cada año de ejecución de $2.000.000.- (dos millones de pesos), por cada beneficiario que integra el proyecto. La Etapa de desarrollo se podrá extender por hasta tres años, aprobándose anualmente el proyecto y asignándose su presupuesto.','Tener RUT chileno',0,2000000,3,2,1,'https://corfo.cl/sites/cpp/convocatoria/red-tecnologica-gtt-desarrollo-silvoagropecuario-sustentable-desarrollo-2025/',''),
+(24,'RED TECNOLÓGICA GTT – 1° CONV. ZONAL 2025 DESARROLLO SILVOAGROPECUARIO SUSTENTABLE',2,7,'Red Tecnológica GTT+ busca que grupos de entre 10 y 15 empresas puedan, a través del intercambio entre pares y asistencias técnicas, cerrar brechas tecnológicas y de gestión, incorporando herramientas y mejores prácticas productivas, fomentando la construcción de alianzas entre empresas para ampliar el capital relacional, mejorar su productividad y posición competitiva.','2025-01-01','2025-12-31',0,'Corfo financiará hasta $3.500.000 para la Etapa de Diagnóstico, por proyecto.','Tener RUT chileno',0,3500000,3,2,1,'https://corfo.cl/sites/cpp/convocatoria/red-tecnologica-gtt-desarrollo-silvoagropecuario-sustentable-diagnostico-2025/',''),
+(25,'CREACIÓN DE CENTRO TECNOLÓGICO DE BIOTECNOLOGÍA PARA LA SOSTENIBILIDAD',2,13,'La convocatoria tiene como objetivo crear y/o fortalecer infraestructura tecnológica y capital humano avanzado mediante la implementación de un Centro Tecnológico de Biotecnología para la Sostenibilidad, en la región de Los Ríos, que permita que empresas y emprendedores desarrollen soluciones sostenibles de alto valor y potencial de mercado con base en biotecnología.','2025-07-28','2025-09-30',3,'Cofinanciamiento: Etapa 1: cofinanciamiento hasta 4.000.000.000.- (cuatro mil millones de pesos) con un tope de hasta el 80,00% del costo total de la primera etapa. Los participantes deberán aportar el financiamiento restante, de los cuales al menos 5,00% del costo total de la Etapa deberá ser mediante aportes nuevos o pecuniarios. Etapa 2: cofinanciamiento hasta 3.900.000.000.- (tres mil novecientos millones de pesos) con un tope de hasta el 65,00% del costo total de la segunda etapa. Los participantes deberán aportar el financiamiento restante, de los cuales al menos 10,00% del costo total de la Etapa deberá ser mediante aportes nuevos o pecuniarios. Etapa 3: cofinanciamiento hasta 1.800.000.000.- (il ochocientos millones de pesos) con un tope de hasta el 35,00% del costo total de la tercera etapa. Los participantes deberán aportar el financiamiento restante, de los cuales al menos 15,00% del costo total de la Etapa deberá ser mediante aportes nuevos o pecuniarios.','Tener RUT chileno, Ser persona natural o jurídica, Estar insrito en un programa x',0,400000000,2,3,1,'https://corfo.cl/sites/cpp/convocatoria/creacion-centro-tecnologico-biotecnologia-sostenibilidad-los-rios-2025/',''),
+(26,'CREACIÓN DE UN CENTRO TECNOLÓGICO PARA LA ECONOMÍA CIRCULAR',2,14,'La convocatoria tiene como objetivo principal la creación y puesta en marcha de un \"Centro Tecnológico para la Economía Circular, en la Región de Los Lagos\" que permita crear, habilitar y/o fortalecer infraestructura y equipamiento tecnológico para el desarrollo de soluciones basadas en modelos de economía circular, abordando las brechas y oportunidades que enfrenta la región de Los Lagos, relacionadas con la prevención en generación de residuos, así como también, de estrategias de reparación, remanufactura, reutilización, reciclaje y disposición final de residuos generados por las actividades productivas, con el fin de transitar hacia un modelo de desarrollo económico circular.','2025-07-22','2025-09-30',3,'Cofinanciamiento hasta $9.700.000.000 (nueve mil setecientos millones de pesos) en tres etapas.','Tener RUT chileno',0,9700000,2,3,5,'https://corfo.cl/sites/cpp/convocatoria/creacion-centro-tecnologico-economia-circular-los-lagos-2025/',''),
+(27,'Programa de Difusión Tecnológica CDPR Atacama 2025',2,4,'El objetivo es contribuir al cierre de brechas de productividad del sector empresarial vinculados a la agroindustria, minería, turismo, eficiencia hídrica y energética, de preferencia Pymes, de la región de Atacama, a través de la difusión de tecnologías y mejores prácticas innovadoras, con el propósito de fomentar su adopción y potenciar la competitividad de un grupo de empresas de una industria o sector que enfrentan una problemática común.','2025-01-01','2025-12-31',0,'InnovaChile cofinanciará hasta el 70,00% del costo total del proyecto, con un tope de hasta $90.000.000.- (noventa millones de pesos). El aporte restante del 30% como mínimo del costo total del proyecto, puede ser pecuniario y valorado.','Tener RUT chileno',0,90000000,3,2,1,'https://corfo.cl/sites/cpp/convocatoria/programa-difusion-tecnologica-cdpr-atacama-2025/',''),
+(28,'RED PROVEEDORES – REGIÓN METROPOLITANA – 1° CONVOCATORIA 2025 ETAPA DESARROLLO',2,7,'Si tienes interés en fortalecer tu cadena productiva, promoviendo el trabajo colaborativo con proveedores actuales o nuevos, fortaleciendo la relación estratégica Proveedores – Demandante, para mejorar la oferta de valor y el acceso a nuevos mercados, te invitamos a postular a Red Proveedores.  El Comité de Desarrollo Productivo Regional cofinanciará hasta un 50% del costo total de la Etapa de Desarrollo, con un tope para cada periodo de $60.000.000.- (sesenta millones de pesos), por proyecto, cuando éste sea sustentable.  En caso contrario, Corfo cofinanciará hasta un 40% del costo total de la Etapa de Desarrollo, con un tope para cada periodo de $50.000.000.- (cincuenta millones de pesos), por proyecto.','2025-01-01','2025-12-31',0,'Financiamiento: El Comité de Desarrollo Productivo Regional cofinanciará hasta un 50% del costo total de la Etapa de Desarrollo, con un tope para cada periodo de $60.000.000.- (sesenta millones de pesos), por proyecto, cuando éste sea sustentable.  En caso contrario, Corfo cofinanciará hasta un 40% del costo total de la Etapa de Desarrollo, con un tope para cada periodo de $50.000.000.- (cincuenta millones de pesos), por proyecto.  Un proyecto “RED Proveedores” es sustentable cuando, además de cumplir con los objetivos del programa y línea de apoyo, busca generar impacto en tres ámbitos: Social: busca implementar prácticas que defiendan los valores sociales, la equidad y el cumplimiento irrestricto de leyes vigentes, además del compromiso con el desarrollo de la comunidad que le rodea. Ambiental: Se preocupa de la preservación del medioambiente y del uso eficiente y racional de los recursos naturales. Económico: busca hacer sustentable su iniciativa desde el punto de vista comercial pe','',0,120000000,3,7,5,'https://corfo.cl/sites/cpp/convocatoria/red-proveedores-metropolitana-1ra-convocatoria-desarrollo-2025/',''),
+(29,'PAR – REGIÓN DE O’HIGGINS – GESTIÓN EFICIENTE DE RECURSOS HÍDRICOS 2024',2,8,'Queremos potenciar a un grupo entre 5 y 15 empresas y/o emprendedores de una localidad o sector económico determinado, para que mejoren su competencia productiva y gestión, desarrollando planes de asistencia técnica, capacitación y cofinanciando la inversión productiva.','2024-02-05','2025-12-01',10,'Hasta $2.000.000 (dos millones de pesos) para actividades de asistencia técnica, capacitación y consultoría. Hasta 80% del costo total del proyecto para Proyecto de Inversión, con tope de hasta $5.000.000 (cinco millones de pesos).','Un contribuyente o un emprendedor podrá beneficiarse de este instrumento sólo en una oportunidad.',0,5000000,2,2,1,'https://corfo.cl/sites/cpp/convocatoria/par_ohiggins_gestion_eficiente_recursos_hidricos/',''),
+(30,'FOCAL – REGIÓN DE O’HIGGINS – INDIVIDUAL AVANCE 2023',2,8,'Subsidio que busca contribuir a la diversificación productiva de la Región de O’Higgins, a través de generar condiciones para potenciar el desarrollo de proveedores de servicios a la minería, mediante el fortalecimiento del Capital humano, el fomento de nuevos emprendimientos e incentivo a la innovación tecnológica minera.','2023-10-25','2025-12-30',2,'Cofinanciamiento para la implementación de un documento normativo, con tope de hasta $3.500.000 (tres millones quinientos mil pesos). El cofinanciamiento cubre hasta el 70% del costo total del proyecto. El porcentaje restante debe ser cubierto por el beneficiario con aportes pecuniarios.','Tener RUT chileno',0,3500000,2,2,1,'https://corfo.cl/sites/cpp/convocatoria/focal_ohiggins_individual_avance-2/',''),
+(31,'FOCAL – REGIÓN DE O’HIGGINS – INDIVIDUAL REEMBOLSO 2023',2,8,'Subsidio que busca contribuir a la diversificación productiva de la Región de O’Higgins, a través de generar condiciones para potenciar el desarrollo de proveedores de servicios a la minería, mediante el fortalecimiento del Capital humano, el fomento de nuevos emprendimientos e incentivo a la innovación tecnológica minera.','2023-10-25','2025-12-30',0,'Cofinanciamiento para la implementación de un documento normativo, con tope de hasta $3.500.000 (tres millones quinientos mil pesos). El cofinanciamiento cubre hasta el 70% del costo total del proyecto. El porcentaje restante debe ser cubierto por el beneficiario con aportes pecuniarios.','Tener RUT chileno',0,3500000,2,2,1,'https://corfo.cl/sites/cpp/convocatoria/focal_ohiggins_individual_reembolso-2/',''),
+(32,'RED ASOCIATIVA – REGIÓN DE O’HIGGINS – ETAPA DE DIAGNÓSTICO Y DESARROLLO 2023',2,8,'Si tienes interés en participar junto a otras Empresas para mejorar tu oferta de valor y acceder a nuevos mercados, a través del Programa RED Asociativa te apoyamos con asesoría experta para abordar oportunidades de mercado y de mejoramiento tecnológico, desarrollando estrategias de negocios colaborativos, de acuerdo a las características productivas del grupo de empresas.','2023-06-30','2025-12-30',2,'Se financiará hasta el 70% del costo total de la Etapa de Diagnóstico y Desarrollo. Hasta el 70% del costo total de la Etapa de Diagnóstico, con un tope de $8.000.000 (ocho millones de pesos) por proyecto.','Tener RUT chileno',0,8000000,2,2,1,'https://corfo.cl/sites/cpp/convocatoria/red_asociativa_ohiggins_diagdesa-2/',''),
+(33,'RED ASOCIATIVA – REGIÓN DE O’HIGGINS – ETAPA DE DIAGNÓSTICO Y DESARROLLO 2023',2,8,'Si tienes interés en participar junto a otras Empresas para mejorar tu oferta de valor y acceder a nuevos mercados, a través del Programa RED Asociativa te apoyamos con asesoría experta para abordar oportunidades de mercado y de mejoramiento tecnológico, desarrollando estrategias de negocios colaborativos, de acuerdo a las características productivas del grupo de empresas.','2023-06-30','2025-12-30',2,'Se financiará hasta el 70% del costo total de la Etapa de Diagnóstico y Desarrollo. Hasta el 70% del costo total de la Etapa de Diagnóstico, con un tope de $8.000.000 (ocho millones de pesos) por proyecto.','Tener RUT chileno',0,8000000,2,2,1,'https://corfo.cl/sites/cpp/convocatoria/red_asociativa_ohiggins_diagdesa/',''),
+(34,'RED MERCADOS – REGIÓN DE O’HIGGINS – ETAPA DE DIAGNÓSTICO Y DESARROLLO 2023',2,8,'Buscamos apoyar a grupos de empresas a incorporar las capacidades y conocimientos necesarios para acceder, directa o indirectamente a mercados internacionales.','2023-06-30','2025-12-30',2,'Para la Etapa de Diagnostico cofinanciara hasta $4.000.000.- (cuatro millones de pesos), por proyecto. Para la Etapa de Desarrollo, Corfo cofinanciará hasta un 90% del costo total de ésta, con un tope de $40.000.000 (cuarenta millones de pesos), por proyecto.','',0,4000000,2,1,1,'https://corfo.cl/sites/cpp/convocatoria/red_mercados_ohiggins_diagndesar/',''),
+(35,'RED PROVEEDORES – REGIÓN DE O’HIGGINS – ETAPA DE DIAGNÓSTICO Y DESARROLLO 2023',2,8,'Buscamos fortalecer la relación Proveedor – Demandante, promueve el trabajo colaborativo para mejorar la oferta de valor de las empresas y así aumentar la competitividad de la cadena productiva.','2023-06-30','2025-12-30',24,'Etapa Diagnostico: Corfo cofinanciará hasta un 50% del costo total de la Etapa de Diagnóstico, con un tope de $10.000.000, por proyecto. Etapa Desarrollo: Corfo cofinanciará hasta un 40% del costo total de la Etapa de Desarrollo, con tope $50.000.000 (cincuenta millones) para cada año de ejecución, por proyecto.','Tener RUT chileno',0,50000000,2,1,1,'https://corfo.cl/sites/cpp/convocatoria/red_proveedores_ohiggins_diagndesarrollo/',''),
+(36,'RED TECNOLÓGICA GTT – REGIÓN DE O’HIGGINS – ETAPA DE DIAGNÓSTICO Y DESARROLLO 2023',2,8,'Buscamos empresas con interés en participar junto a otras, para aumentar tu competitividad a través del Programa RED GTT para abordar brechas en ámbitos tecnológicos y de gestión, desarrollando actividades de construcción de capital social de Pymes silvoagropecuarias, a través de la organización y el trabajo en grupo de los productores, de acuerdo con las características productivas del grupo de empresas. Convocatoria abierta para la Región de O’Higgins.','2023-06-30','2025-12-30',2,'Se financiará hasta $3.500.000.- (tres millones quinientos mil pesos) de la Etapa de Diagnóstico, por proyecto. El cofinanciamiento cubre hasta un 80% del costo total de la Etapa de Desarrollo.','Tener RUT chileno',0,3500000,2,1,1,'https://corfo.cl/sites/cpp/convocatoria/red_tecnologica_gtt_oh_diag_desar/',''),
+(37,'Innova Región Atacama 2025',2,4,'Apoyamos el desarrollo de nuevos o mejorados productos (bienes o servicios) y/o procesos desde la fase de prototipo, hasta la fase de validación técnica a escala productiva y/o validación comercial, que aporten a la economía regional y fortalezcan las capacidades de innovación en la empresa en los ámbitos minería, agroindustria, eficiencia hídrica y energética.','2025-01-01','2025-12-31',0,'Se cofinanciará los proyectos con un tope de hasta $60.000.000.- (sesenta millones de pesos). Se financiará un porcentaje del costo total del proyecto, dependiendo de los ingresos por ventas del beneficiario: Empresa Micro y pequeña (ventas por hasta 25.000 UF anual): hasta 80% Empresa Mediana (ventas por sobre 25.000 UF y hasta 100.000 UF anual) hasta 60% Empresa Grande (ventas por sobre 100.000 UF anual) hasta 40% Aumento de hasta un 10 % más de cofinanciamiento para \"Empresas lideradas por mujeres\".','Tener RUT chileno, Ser persona natural o jurídica, Estar insrito en un programa x',0,60000000,3,1,1,'https://corfo.cl/sites/cpp/convocatoria/innova-region-atacama-2025/',''),
+(38,'PAR GESTIÓN EFICIENTE DE RECURSOS HÍDRICOS – REGIÓN DE O’HIGGINS 2022',2,8,'Subsidio que busca mejorar el potencial productivo y fortalecer la gestión de las empresas y/o emprendedores de un territorio, apoyando proyectos vinculados a la sustentabilidad medioambiental, que incorporen la gestión eficiente de recursos hídricos, fomentando el desarrollo de sus competencias y capacidades y cofinanciando proyectos de inversión, que les permitan acceder a nuevas oportunidades de negocio y/o mantener las existentes.','2022-01-01','2022-12-31',12,'Hasta $2.000.000 (dos millones de pesos) para actividades de asistencia técnica, capacitación y consultoría. Hasta 80% del costo total del proyecto para Proyecto de Inversión, con tope de hasta $5.000.000 (cinco millones de pesos).','Tener RUT chileno, Ser persona natural o jurídica, Estar insrito en un programa x',0,5000000,8,7,1,'https://corfo.cl/sites/cpp/convocatoria/par_gestion_eficiente_de_recursos_hidricos_ohiggins/',''),
+(39,'PAR MULTISECTORIAL IDENTIDAD REGIONAL Y PATRIMONIAL – REGIÓN DE O’HIGGINS – AÑO 2023',2,8,'Queremos potenciar a un grupo entre 5 y 15 empresas y/o emprendedores de una localidad o sector económico determinado, para que mejoren su competencia productiva y gestión, desarrollando planes de asistencia técnica, capacitación y cofinanciando la inversión productiva.','2023-01-01','2023-12-31',12,'Hasta $2.000.000 (dos millones de pesos) para actividades de asistencia técnica, capacitación y consultoría. Hasta 80% del costo total del proyecto para Proyecto de Inversión, con tope de hasta $5.000.000 (cinco millones de pesos).','Tener RUT chileno, Ser persona natural o jurídica, Estar insrito en un programa x',0,5000000,8,1,1,'https://corfo.cl/sites/cpp/convocatoria/par_multisectorial_identidad_regional_y_patrimonial_oh/',''),
+(40,'PAR MULTISECTORIAL INCLUSION – REGION DE O’HIGGINS – AÑO 2023',2,8,'Queremos potenciar a un grupo entre 5 y 15 empresas y/o emprendedores de una localidad o sector económico determinado, para que mejoren su competencia productiva y gestión, desarrollando planes de asistencia técnica, capacitación y cofinanciando la inversión productiva.','2023-01-01','2023-12-31',0,'Hasta $2.000.000 (dos millones de pesos) para actividades de asistencia técnica, capacitación y consultoría. Hasta 80% del costo total del proyecto para Proyecto de Inversión, con tope de hasta $5.000.000 (cinco millones de pesos).','Tener RUT chileno',0,5000000,8,1,1,'https://corfo.cl/sites/cpp/convocatoria/par_multisectorial_inclusion_oh/',''),
+(41,'RED ASOCIATIVA – REGIÓN METROPOLITANA – 1° CONVOCATORIA 2025 ETAPA DESARROLLO',2,7,'El Programa Red Asociativa permite participar junto a otras Empresas para mejorar tu oferta de valor y acceder a nuevos mercados, a través del Programa RED Asociativa te apoyamos con asesoría experta para abordar oportunidades de mercado y de mejoramiento tecnológico, desarrollando estrategias de negocios colaborativos, de acuerdo con las características productivas del grupo de empresas.','2025-01-01','2025-12-31',0,'Corfo cofinanciará hasta un 70% del costo total de la Etapa de Desarrollo, con un tope de $40.000.000, por proyecto.','Tener RUT chileno',0,40000000,3,2,1,'https://corfo.cl/sites/cpp/convocatoria/red-asociativa-metropolitana-1ra-convocatoria-desarrollo-2025/',''),
+(42,'Red Tecnológica GTT+',2,7,'Si tienes interés en participar junto a otras empresas del sector silvoagropecuario en un proyecto GTT, los invitamos a postular al programa GTT+. Esta línea de apoyo busca que grupos de entre 10 y 15 empresas puedan, a través del intercambio entre pares y asistencias técnicas, cerrar brechas tecnológicas y de gestión, incorporando herramientas y mejores prácticas productivas, fomentando la construcción de alianzas entre los empresarios para ampliar el capital relacional, mejorar su productividad y posición competitiva.','2025-01-01','2025-12-31',0,'Cofinanciamiento: Hasta $3.500.000.- (tres millones quinientos mil pesos), para la Etapa de Diagnóstico.- En la Etapa de Diagnóstico se otorgará un financiamiento de hasta $3.500.000.- (tres millones quinientos mil pesos), por proyecto. Corfo cofinanciará hasta un 80% del costo total de la Etapa de Desarrollo, con un tope para cada periodo de $2.000.000.- (dos millones de pesos), por cada beneficiario que integra el proyecto.','',0,3500000,3,1,1,'https://corfo.cl/sites/cpp/convocatoria/gtt/',''),
+(43,'PAMMA Asistencia Técnica 2025',3,2,'Este instrumento entregará asistencia técnica a las y los productores de la pequeña minería de las regiones de Antofagasta, Atacama y Coquimbo. Este servicio será entregado por la Universidad de Atacama, incluyendo dos líneas de trabajo especificas: Regularización ante Sernageomin y Asesoría técnica productiva.','2025-08-13','2025-09-01',1,'Capacitación, Asesoría técnica','Tener RUT chileno, Ser persona natural o jurídica',0,0,2,1,6,'https://www.fondos.gob.cl/ficha/minmineria/pamma-at-2025/',''),
+(44,'Proyectos Culturales y Deportivos',3,4,'Este Fondo, a través de las Bases Generales, regula el proceso de concursabilidad y de asignación de recursos para subvencionar las actividades mencionadas en la Glosa 07 de la Ley N°21.722 del Sector Público año 2025, para que postulen instituciones privadas sin fines de lucro a proyectos cultureles y deportivos con actividades de vinculación con la comunidad Atacameña.','2025-08-19','2025-09-01',0,'Capacitación','Tener RUT chileno',0,4000000,2,1,5,'https://www.fondos.gob.cl/ficha/goreatacama/proyectos-culturales-deportivos-atacama/',''),
+(45,'Fondo de Protección Ambiental: Puesta en valor de los Ecosistemas Altoandinos – Humedales y Criósfera',3,4,'A través de este concurso, el Ministerio del Medio Ambiente, por medio del Fondo de Protección Ambiental, busca promover la puesta en valor y gestión sustentable de los ecosistemas altoandinos de la comuna de Alto del Carmen, Región de Atacama, con especial énfasis en los humedales y la criósfera. Para ello, se apoyarán proyectos ejecutados por universidades, centros de investigación, fundaciones, corporaciones y ONG, orientados a generar conocimiento científico sobre estos ecosistemas, acercarlos a la comunidad mediante infraestructura educativa itinerante y fortalecer su protección a través de actividades de educación ambiental.','2025-08-05','2025-09-17',7,'Capacitación, Inversión en infraestructura','Tener RUT chileno, Ser persona jurídica',0,7000000,2,1,5,'https://www.fondos.gob.cl/ficha/mma/fpa-alto-del-carmen-hidrico/',''),
+(46,'Fondo de Protección Ambiental: Puesta en valor de los Ecosistemas Altoandinos – Biodiversidad',3,4,'A través de este concurso, el Ministerio del Medio Ambiente, por medio del Fondo de Protección Ambiental, busca promover el conocimiento y la conservación de la biodiversidad de los ecosistemas altoandinos en la comuna de Alto del Carmen, Región de Atacama. La convocatoria está dirigida a universidades, centros de investigación, fundaciones, corporaciones y ONG, y contempla el financiamiento de proyectos que permitan diagnosticar los principales componentes de la biodiversidad local, identificar sitios prioritarios para su protección y fortalecer la valoración de estos ecosistemas mediante actividades de educación ambiental dirigidas a la comunidad.','2025-08-05','2025-09-17',6,'Capacitación, Asesoría técnica','Tener RUT chileno, Ser persona jurídica',0,6000000,2,1,5,'https://www.fondos.gob.cl/ficha/mma/fpa-alto-del-carmen-biodiversidad/',''),
+(47,'Fondo de Protección Ambiental - Tocopilla',3,2,'A través de este Concurso, el MMA por medio del Fondo de Protección Ambiental, busca contribuir al proceso de Transición Socioecológica Justa de la comuna de Tocopilla Región del Antofagasta, por medio de la ejecución de proyectos ciudadanos, focalizados en las temáticas de Innovación en energías renovables y eficiencia energética y Adaptación al Cambio Climático, incorporando la educación ambiental como un proceso permanente.','2025-07-01','2025-09-24',6,'CAP, RIE','Tener RUT chileno, Ser persona natural o jurídica, Estar insrito en un programa x',0,1000000,2,2,5,'https://www.fondos.gob.cl/ficha/mma/fpatocopilla-2025/',''),
+(48,'PROYECTOS CIUDADANOS CON ENFOQUE DE TRANSICIÓN SOCIOECOLÓGICA JUSTA',3,2,'A través de este Concurso, el MMA por medio del Fondo de Protección Ambiental, busca contribuir al proceso de Transición Socioecológica Justa de la comuna de Mejillones Región del Antofagasta, por medio de la ejecución de proyectos ciudadanos, focalizados en las temáticas de Innovación en energías renovables y eficiencia energética y Adaptación al Cambio Climático, incorporando la educación ambiental como un proceso permanente.','2025-07-01','2025-09-24',6,'CAP','Tener RUT chileno, Ser persona natural o jurídica, Estar insrito en un programa x',0,10000000,2,1,5,'https://www.fondos.gob.cl/ficha/mma/fpamejillones-2025/',''),
+(49,'MI TAXI ELÉCTRICO ATACAMA',3,4,'Este fondo cofinancia la inversión para el reemplazo de un vehículo con motor de combustión interna, que sea taxi en todas sus modalidades, según DS-212 de MTT a un vehículo eléctrico. El vehículo a reemplazar debe estar inscrito en el registro nacional de transporte de pasajeros en la región y el propietario debe contar con un lugar o estacionamiento bajo su control y que pueda ser instalado un cargador para el vehículo eléctrico. Este Fondo se encontrará abierto hasta completar los cupos (158).','2024-04-30','2025-10-30',12,'Capacitación','Tener RUT chileno, Estar inscrito en un programa x',0,16000000,2,1,6,'https://www.fondos.gob.cl/ficha/minenergia/mte-atacama/',''),
+(50,'MI TAXI ELÉCTRICO O\'HIGGINS',3,8,'Este fondo cofinancia la inversión para el reemplazo de un vehículo con motor de combustión interna, que sea taxi en todas sus modalidades, según DS-212 de MTT a un vehículo eléctrico. El vehículo a reemplazar debe estar inscrito en el registro nacional de transporte de pasajeros en la región y el propietario debe contar con un lugar o estacionamiento bajo su control y que pueda ser instalado un cargador para el vehículo eléctrico. Este Fondo se encontrará abierto hasta completar los cupos (152).','2024-03-13','2025-10-30',12,'Capacitación','Tener RUT chileno, Estar inscrito en un programa x',0,16000000,2,1,6,'https://www.fondos.gob.cl/ficha/minenergia/mte-ohiggins/',''),
+(51,'MI TAXI ELÉCTRICO BÍOBÍO',3,11,'Este fondo cofinancia la inversión para el reemplazo de un vehículo con motor de combustión interna, que sea taxi en todas sus modalidades, según DS-212 de MTT a un vehículo eléctrico. El vehículo a reemplazar debe estar inscrito en el registro nacional de transporte de pasajeros en la región y el propietario debe contar con un lugar o estacionamiento bajo su control y que pueda ser instalado un cargador para el vehículo eléctrico. Este Fondo se encontrará abierto hasta completar los cupos (299).','2024-04-30','2025-10-30',12,'Capacitación','Tener RUT chileno, Estar inscrito en un programa x',0,16000000,2,1,6,'https://www.fondos.gob.cl/ficha/minenergia/mte-biobio/',''),
+(52,'MI TAXI ELÉCTRICO ANTOFAGASTA',3,2,'Este fondo cofinancia la inversión para el reemplazo de un vehículo con motor de combustión interna, que sea taxi en todas sus modalidades, según DS-212 de MTT a un vehículo eléctrico. El vehículo a reemplazar debe estar inscrito en el registro nacional de transporte de pasajeros en la región y el propietario debe contar con un lugar o estacionamiento bajo su control y que pueda ser instalado un cargador para el vehículo eléctrico. Este Fondo se encontrará abierto hasta completar los cupos (59).','2024-03-26','2025-10-30',12,'Capacitación','Tener RUT chileno, Estar inscrito en un programa x',0,16000000,2,1,6,'https://www.fondos.gob.cl/ficha/minenergia/mte-antofagasta/',''),
+(53,'FNDR Deportistas O’Higgins 2025',3,8,'Apoyar procesos de preparación y/o entrenamientos para competencias de deportistas destacados, convencionales y paralímpicos. Dichos deportistas deben tener domicilio (residencia) y afiliación deportiva en la Región de O’Higgins. Sin perjuicio de lo anterior, y con respecto al punto de la exigencia de afiliación deportiva, se considerarán casos excepcionales, pero debidamente calificados, por ejemplo, para aquellas disciplinas que no posean clubes federados en la región, seleccionados/as nacionales que, a pesar de tener domicilio en la región, por motivos fundamentados, han debido afiliarse a clubes fuera de esta, (entre otros similares). Cabe señalar, que la pertinencia de dichos casos será evaluada por la Unidad FNDR 8%.','2025-05-06','2025-12-31',7,'Capacitación','Tener RUT chileno, Ser persona natural o jurídica, Estar insrito en un programa x',6000000,8000000,2,1,6,'https://www.fondos.gob.cl/ficha/goreohiggins/fndr_deportistas_ohiggins-2025/','');
+
+INSERT INTO Proyecto (ID, Titulo, Descripcion, DuracionEnMesesMaximo, DuracionEnMesesMinimo, Alcance, Area, Beneficiario) VALUES
+(1,'Consultoria de Gestion','Actividades de Consultoria de Gestion para empresas y organizaciones.',6,12,7,'Gestion Empresarial',1),
+(2,'Servicios de Apoyo Empresarial','Otras Actividades de Servicios de Apoyo A Las Empresas.',6,12,7,'Apoyo Empresarial',1),
+(3,'Actividades de Asociaciones Profesionales','Actividades de Asociaciones Profesionales para el desarrollo del sector.',6,12,7,'Desarrollo Profesional',1),
+(4,'Servicios Personales','Otras Actividades de Servicios Personales.',6,12,7,'Servicios Personales',1),
+(5,'Cultivo de Trigo','Actividad de cultivo de trigo.',6,12,7,'Agrícola',2),
+(6,'Cultivos Forrajeros','Cultivos forrajeros en praderas mejoradas o sembradas, cultivos suplementarios forrajeros.',6,12,7,'Agrícola',2),
+(7,'Cultivo de Frutos Oleaginosos','Actividad de cultivo de frutos oleaginosos, incluyendo el cultivo de aceitunas.',6,12,7,'Agrícola',2),
+(8,'Alquiler de Inmuebles','Alquiler de bienes inmuebles amoblados o con equipos y maquinarias.',6,12,7,'Inmobiliario',3),
+(9,'Compraventa de Inmuebles','Compra, venta y alquiler (excepto amoblados) de inmuebles.',6,12,7,'Inmobiliario',3),
+(10,'Servicios de Apoyo Empresarial','Otras actividades de servicios de apoyo a las empresas.',6,12,7,'Empresarial',3),
+(11,'Servicios Personales','Otras actividades de servicios personales.',6,12,7,'Servicios',3),
+(12,'Construcción de Obras de Ingeniería Civil','Construcción de otras obras de ingeniería civil, incluyendo actividades relacionadas con polímeros y revestimientos.',6,12,7,'Construcción',4),
+(13,'Actividades Especializadas de Construcción','Realización de otras actividades especializadas de construcción, complementarias a la construcción general.',6,12,7,'Construcción',4),
+(14,'Servicios de Apoyo a Empresas','Prestación de otras actividades de servicios de apoyo a las empresas, no clasificadas en otras partes.',6,12,7,'Servicios',4),
+(15,'Elaboración de Productos Lácteos','Elaboración de productos lácteos, incluyendo la producción de leche, quesos, yogures y otros derivados lácteos.',6,12,7,'Alimentaria',5),
+(16,'Fabricacion de Metal','Fabricación de otros productos elaborados de metal no específicamente clasificados.',6,12,7,'Industrial',6),
+(17,'Servicios de Apoyo Empresarial','Otras actividades de servicios de apoyo a las empresas no específicamente clasificadas.',6,12,7,'Servicios',6),
+(18,'Terminacion de Edificios','Actividad de terminación y acabado de edificios.',6,12,7,'Construcción',7),
+(19,'Transporte de Pasajeros','Actividad de transporte de pasajeros por vía terrestre.',6,12,7,'Transporte',7),
+(20,'Transmisiones de Radio','Actividad de transmisiones de radio.',6,12,7,'Medios de Comunicación',7),
+(21,'Programacion de Television','Actividad de programación y transmisiones de televisión.',6,12,7,'Medios de Comunicación',7),
+(22,'Servicios de Publicidad','Actividad de servicios de publicidad prestados por empresas.',6,12,7,'Publicidad',7),
+(23,'Elaboración de Vinos','Elaboración de vinos, proceso que involucra la transformación de uvas en vino, desde la fermentación hasta el embotellado.',6,12,7,'Agricultura',8),
+(24,'Producción de Aguas Minerales','Producción de aguas minerales y otras aguas embotelladas, incluyendo el proceso de extracción, tratamiento y envasado.',6,12,7,'Alimentos y Bebidas',8),
+(25,'Servicios de Banquetería','Suministro de comidas por encargo, ofreciendo servicios de banquetería para eventos y celebraciones.',6,12,7,'Servicios de Alimentación',8),
+(26,'Actividades Recreativas','Otras actividades de esparcimiento y recreación, ofreciendo entretenimiento y diversión para diversos públicos.',6,12,7,'Entretenimiento',8),
+(27,'Venta Minorista Diversa','Realización de otras actividades de venta por menor no realizadas en comercios, puestos de venta o mercados.',6,12,7,'Comercio',9),
+(28,'Consultoría e Ingeniería','Prestación de servicios profesionales de ingeniería y actividades conexas de consultoría técnica.',6,12,7,'Servicios',9),
+(29,'Ensayos y Análisis Técnicos','Prestación de otros servicios de ensayos y análisis técnicos (excepto actividades de plantas de revisión técnica).',6,12,7,'Servicios',9),
+(30,'Cultivo de Plantas Vivas','Cultivo de plantas vivas incluyendo la producción en viveros, excepto viveros forestales.',6,12,7,'Agricultura',10),
+(31,'Venta de Libros','Venta al por menor de libros en comercios especializados.',6,12,7,'Comercio',11),
+(32,'Servicios de Apoyo Empresarial','Otras actividades de servicios de apoyo a las empresas.',6,12,7,'Servicios Empresariales',11),
+(33,'Promoción Cultural','Fundaciones y corporaciones que promueven actividades culturales o recreativas.',6,12,7,'Cultura',11),
+(34,'Asistencia Social','Otras Actividades de Asistencia Social Sin Alojamiento.',6,12,7,'Social',12),
+(35,'Promoción Cultural','Fundaciones y Corporaciones, Asociaciones Que Promueven Actividades Culturales o Recreativas.',6,12,7,'Cultural',12),
+(36,'Actividades Asociativas','Actividades de Otras Asociaciones N.C.P.',6,12,7,'Comunitario',12),
+(37,'Cria de Ganado Bovino','Cria de ganado bovino para la producción de carne o como ganado reproductor.',6,12,7,'Agricultura',13),
+(38,'Explotación de Mataderos','Explotación de mataderos de bovinos, ovinos, equinos, caprinos, porcinos y camelidos.',6,12,7,'Industria Alimentaria',13),
+(39,'Transporte de Carga','Transporte de carga por carretera.',6,12,7,'Logística',13),
+(40,'Procesamiento de Datos','Procesamiento de datos, hospedaje y actividades conexas.',6,12,7,'Tecnología',13),
+(41,'Servicios de Apoyo Empresarial','Otras actividades de servicios de apoyo a las empresas.',6,12,7,'Servicios Empresariales',13),
+(42,'Construcción de Carreteras','Construcción de carreteras y líneas de ferrocarril.',6,12,7,'Infraestructura',14),
+(43,'Construcción de Proyectos Públicos','Construcción de proyectos de servicio público.',6,12,7,'Servicios Públicos',14),
+(44,'Fondos de Inversión','Operaciones relacionadas con fondos y sociedades de inversión y entidades financieras similares.',6,12,7,'Finanzas',14),
+(45,'Servicios de Arquitectura','Servicios de arquitectura, diseño de edificios y dibujo de planos de construcción.',6,12,7,'Arquitectura',14),
+(46,'Servicios de Ingeniería','Servicios profesionales de ingeniería y actividades conexas de consultoría técnica.',6,12,7,'Ingeniería',14),
+(47,'Alquiler de Maquinaria','Alquiler de maquinaria y equipo de construcción.',6,12,7,'Equipamiento',14),
+(48,'Construccion de Infraestructura','Construcción de carreteras y líneas de ferrocarril, incluyendo preparación del terreno, movimiento de tierras, construcción de puentes y túneles, y pavimentación.',6,12,7,'Infraestructura',15),
+(49,'Servicios de Ingeniería','Prestación de servicios de ingeniería y actividades conexas de consultoría técnica.',6,12,7,'Ingeniería',16),
+(50,'Servicios de Apoyo Empresarial','Otras actividades de servicios de apoyo a las empresas.',6,12,7,'Administrativo',16),
+(51,'Venta al por mayor','Venta al por mayor no especializada.',6,12,7,'Comercio',17),
+(52,'Investigación y Desarrollo','Investigaciones y desarrollo experimental en el campo de las ciencias naturales y la ingeniería.',6,12,7,'Investigación',17),
+(53,'Administracion Publica','Actividades de la administración pública en general.',6,12,7,'Administración Pública',18),
+(54,'Administracion Publica','Actividades de la administración pública en general.',6,12,7,'Administración Pública',19),
+(55,'Impresión de Productos','Actividades de impresión no especificada, incluyendo servicios relacionados con la impresión.',6,12,7,'Industrial',20),
+(56,'Fabricación de Productos de Metal','Fabricación de otros productos elaborados de metal no especificados.',6,12,7,'Industrial',20),
+(57,'Comercio Mayorista','Venta al por mayor no especializada de productos.',6,12,7,'Comercial',20),
+(58,'Servicios de Apoyo Empresarial','Otras actividades de servicios de apoyo a las empresas no especificadas.',6,12,7,'Servicios',20),
+(59,'Administracion Publica','Actividades de la administración pública en general.',6,12,7,'Administración Pública',21),
+(60,'Bibliotecas y Archivos','Actividades de bibliotecas y archivos.',6,12,7,'Cultura',21),
+(61,'Museos y Sitios Históricos','Actividades de museos, gestión de lugares y edificios históricos.',6,12,7,'Cultura',21),
+(62,'Venta al por menor','Otras Actividades de Venta Al Por Menor En Comercios No Especializados N.C.P.',6,12,7,'Comercio',22),
+(63,'Servicios de apoyo','Otras Actividades de Servicios de Apoyo A Las Empresas N.C.P.',6,12,7,'Empresarial',22),
+(64,'Enseñanza superior','Enseñanza Superior En Universidades Publicas',6,12,7,'Educación',22),
+(65,'Hospitales y clínicas','Actividades de Hospitales y Clinicas Publicas',6,12,7,'Salud',22),
+(66,'Fabricacion de Computadores','Fabricación de computadores y equipo periférico.',6,12,7,'Tecnología',23),
+(67,'Venta al por Mayor de Libros','Venta al por mayor de libros.',6,12,7,'Comercio',23),
+(68,'Venta al por Menor de Libros','Venta al por menor de libros en comercios especializados.',6,12,7,'Comercio',23),
+(69,'Servicio de Comidas','Actividades de restaurantes y de servicio móvil de comidas.',6,12,7,'Servicios',23),
+(70,'Edicion de Libros','Edición de libros.',6,12,7,'Editorial',23),
+(71,'Transmisiones de Radio','Transmisiones de radio.',6,12,7,'Medios',23),
+(72,'Programacion de Television','Programación y transmisiones de televisión.',6,12,7,'Medios',23),
+(73,'Compraventa de Inmuebles','Compra, venta y alquiler (excepto amoblados) de inmuebles.',6,12,7,'Bienes Raices',23),
+(74,'Apoyo de Oficina','Fotocopiado, preparación de documentos y otras actividades especializadas de apoyo de oficina.',6,12,7,'Administrativo',23),
+(75,'Enseñanza Superior','Enseñanza superior en universidades públicas.',6,12,7,'Educación',23),
+(76,'Centros Medicos Privados','Centros médicos privados (establecimientos de atención ambulatoria).',6,12,7,'Salud',23),
+(77,'Enseñanza Superior','Actividades de enseñanza superior en universidades públicas, incluyendo desarrollo de programas académicos, investigación y docencia.',6,12,7,'Educación',24),
+(78,'Apoyo a la Enseñanza','Actividades de apoyo a la enseñanza, como servicios de biblioteca, tutorías y desarrollo de materiales educativos.',6,12,7,'Educación',24),
+(79,'Cultivo de Hortalizas','Cultivo de hortalizas y melones.',6,12,7,'Agricultura',25),
+(80,'Cria de Animales','Cria de otros animales no clasificados previamente.',6,12,7,'Ganadería',25),
+(81,'Laboratorio Dental','Actividades de laboratorios dentales.',6,12,7,'Salud',25),
+(82,'Venta de Libros Mayoristas','Venta al por mayor de libros.',6,12,7,'Comercio',25),
+(83,'Venta de Libros Minoristas','Venta al por menor de libros en comercios especializados.',6,12,7,'Comercio',25),
+(84,'Venta de Papelería','Venta al por menor de artículos de papelería y escritorio en comercios especializados.',6,12,7,'Comercio',25),
+(85,'Telecomunicaciones','Otras actividades de telecomunicaciones no clasificadas previamente.',6,12,7,'Telecomunicaciones',25),
+(86,'Compraventa de Inmuebles','Compra, venta y alquiler (excepto amoblados) de inmuebles.',6,12,7,'Bienes Raíces',25),
+(87,'Consultoría de Gestión','Actividades de consultoría de gestión.',6,12,7,'Consultoría',25),
+(88,'Enseñanza Superior','Enseñanza superior en universidades públicas.',6,12,7,'Educación',25),
+(89,'Laboratorios Clínicos','Actividades de laboratorios clínicos y bancos de sangre.',6,12,7,'Salud',25),
+(90,'Lavado y Limpieza','Lavado y limpieza, incluida la limpieza en seco, de productos textiles y de piel.',6,12,7,'Servicios',25),
+(91,'Actividades de Defensa','Desarrollo y ejecución de actividades relacionadas con la defensa nacional, incluyendo entrenamiento, investigación y operaciones.',6,12,7,'Defensa',26),
+(92,'Investigación Científica','Investigaciones y desarrollo experimental en el campo de las ciencias sociales y las humanidades, enfocadas en el fomento pesquero.',6,12,7,'Ciencias Sociales',27),
+(93,'Apoyo a la Silvicultura','Servicios de apoyo a la silvicultura no clasificados en otra parte.',6,12,7,'Silvicultura',28),
+(94,'Investigación Científica','Investigación y desarrollo experimental en ciencias naturales e ingeniería.',6,12,7,'Ciencia',28),
+(95,'Investigación Social','Investigación y desarrollo experimental en ciencias sociales y humanidades.',6,12,7,'Social',28),
+(96,'Investigación General','Actividades de investigación, incluyendo actividades de investigadores y detectives privados.',6,12,7,'Investigación',28),
+(97,'Cultivo de Especias','Investigación y desarrollo en el cultivo de especias para mejorar la producción y calidad.',6,12,7,'Agricultura',29),
+(98,'Apoyo a la Agricultura','Actividades de apoyo a la agricultura, incluyendo asistencia técnica y capacitación a agricultores.',6,12,7,'Agricultura',29),
+(99,'Investigación Social','Investigaciones y desarrollo experimental en el campo de las ciencias sociales y las humanidades relacionadas con la agricultura.',6,12,7,'Investigación',29),
+(100,'Captación y Tratamiento de Agua','Captación, tratamiento y distribución de agua potable.',6,12,7,'Agua Potable',30),
+(101,'Servicios de Análisis Técnicos','Realización de otros servicios de ensayos y análisis técnicos.',6,12,7,'Análisis Técnico',30),
+(102,'Investigación Ciencias Naturales','Investigaciones y desarrollo experimental en el campo de las ciencias naturales y la ingeniería.',6,12,7,'Ciencia y Tecnología',31),
+(103,'Investigación Ciencias Sociales','Investigaciones y desarrollo experimental en el campo de las ciencias sociales y las humanidades.',6,12,7,'Ciencias Sociales',31),
+(104,'Servicios Personales','Otras actividades de servicios personales no clasificadas en otra parte.',6,12,7,'Servicios',31),
+(105,'Enseñanza Superior','Implementación de programas de enseñanza superior en la Universidad de O\'Higgins, enfocados en la formación de profesionales de alta calidad.',6,12,7,'Educación',32),
+(106,'Actividades de Asociaciones N.C.P.','Desarrollo de actividades de Otras Asociaciones N.C.P. sin fines de lucro.',6,12,7,'Social',33),
+(107,'Consultoria de Gestion','Actividades de Consultoria de Gestion para la asociacion gremial.',6,12,7,'Gestion',34),
+(108,'Actividades Asociativas','Actividades de Otras Asociaciones N.C.P. para el desarrollo de la asociacion.',6,12,7,'Desarrollo Comunitario',34),
+(109,'Cultivo de Hortalizas','Cultivo de hortalizas y melones para consumo local y venta.',6,12,7,'Agricultura',35),
+(110,'Venta de Telas y Lanas','Venta al por menor de telas, lanas, hilos y similares en comercio especializado.',6,12,7,'Comercio',35),
+(111,'Venta de Prendas y Accesorios','Venta al por menor de prendas y accesorios de vestir en comercio especializado.',6,12,7,'Comercio',35),
+(112,'Venta de Recuerdos y Artesanías','Venta al por menor de recuerdos, artesanías y artículos religiosos en comercio especializado.',6,12,7,'Comercio',35),
+(113,'Investigación Científica','Investigaciones y desarrollo experimental en el campo de las ciencias naturales y la ingeniería.',6,12,7,'Investigación',35),
+(114,'Investigación Social','Investigaciones y desarrollo experimental en el campo de las ciencias sociales y las humanidades.',6,12,7,'Investigación',35),
+(115,'Promoción Cultural','Promoción de actividades culturales o recreativas a través de la fundación.',6,12,7,'Cultura',35),
+(116,'Consultoria de Gestion','Actividades de Consultoria de Gestion.',6,12,7,'Gestion',36),
+(117,'Investigacion','Actividades de Investigacion.',6,12,7,'Investigacion',36),
+(118,'Promocion Cultural','Fundaciones y Corporaciones, Asociaciones Que Promueven Actividades Culturales o Recreativas.',6,12,7,'Cultura',36),
+(119,'Asociación Gremial','Desarrollo de actividades de Otras Asociaciones N.C.P. para la promoción y apoyo de la industria maderera en la región del Bio Bio.',6,12,7,'Industrial',37),
+(120,'Telecomunicaciones','Otras Actividades de Telecomunicaciones N.C.P.',6,12,7,'Telecomunicaciones',38),
+(121,'Publicidad','Servicios de Publicidad Prestados Por Empresas',6,12,7,'Publicidad',38),
+(122,'Sindicatos','Actividades de Sindicatos',6,12,7,'Social',38),
+(123,'Promoción Cultural y Recreativa','Fomento de actividades culturales y recreativas a través de fundaciones, corporaciones y asociaciones gremiales. Impulso a la participación comunitaria y preservación del patrimonio cultural.',6,12,7,'Cultural',39),
+(124,'Actividades de Asociaciones N.C.P.','Desarrollo de actividades diversas realizadas por asociaciones sin fines de lucro.  Incluye iniciativas de apoyo comunitario, desarrollo social y promoción de valores.',6,12,7,'Social',39),
+(125,'Consultoria de Gestion','Actividades de Consultoria de Gestion.',6,12,7,'Gestion',40),
+(126,'Asistencia Social','Otras Actividades de Asistencia Social Sin Alojamiento.',6,12,7,'Social',40),
+(127,'Asociaciones N.C.P.','Actividades de Otras Asociaciones N.C.P.',6,12,7,'Comunidad',40),
+(128,'Actividades de Asociaciones','Desarrollo de actividades propias de asociaciones sin fines de lucro, incluyendo gestión, coordinación y apoyo a organizaciones de ferias libres.',6,12,7,'Social',41),
+(129,'Servicios Financieros','Prestación de otras actividades de servicios financieros, excepto las de seguros y fondos de pensiones.',6,12,7,'Financiero',42),
+(130,'Enseñanza','Desarrollo de otros tipos de enseñanza no clasificados previamente.',6,12,7,'Educación',42),
+(131,'Promoción Cultural','Fomento de actividades culturales o recreativas a través de fundaciones y corporaciones.',6,12,7,'Cultura',42),
+(132,'Actividades de Asociaciones','Realización de actividades de otras asociaciones no clasificadas previamente.',6,12,7,'Social',42),
+(133,'Venta de Libros','Venta al por menor de libros en comercios especializados.',6,12,7,'Comercio',43),
+(134,'Edicion de Libros','Edición de libros.',6,12,7,'Editorial',43),
+(135,'Enseñanza','Otros tipos de enseñanza no clasificados previamente.',6,12,7,'Educación',43),
+(136,'Promoción Cultural','Fundaciones y corporaciones que promueven actividades culturales o recreativas.',6,12,7,'Cultura',43),
+(137,'Consultoría de Gestión','Actividades de Consultoría de Gestión para empresas del sector.',6,12,7,'Gestión Empresarial',44),
+(138,'Centros de Madres','Actividades de apoyo y desarrollo para Centros de Madres.',6,12,7,'Social',44),
+(139,'Organizaciones Extraterritoriales','Actividades de cooperación y colaboración con Organizaciones Extraterritoriales.',6,12,7,'Cooperación Internacional',44),
+(140,'Asociación Gremial','Actividades de Asociaciones Empresariales y de Empleadores.',6,12,7,'Empresarial',45),
+(141,'Actividades Gremiales','Desarrollo de actividades de otras asociaciones sin fines de lucro, enfocadas en la promoción y desarrollo de la náutica y el capital humano en la región.',6,12,7,'Comunitario',46),
+(142,'Consultoria de Gestion','Actividades de consultoría de gestión para mejorar la eficiencia energética.',6,12,7,'Gestion',47),
+(143,'Investigacion y Desarrollo','Investigaciones y desarrollo experimental en el campo de las ciencias naturales y la ingeniería, enfocadas en eficiencia energética.',6,12,7,'Investigacion',47),
+(144,'Actividades Profesionales','Otras actividades profesionales, científicas y técnicas relacionadas con la eficiencia energética.',6,12,7,'Tecnologia',47),
+(145,'Servicios de Educacion','Servicios personales de educación en temas de eficiencia energética.',6,12,7,'Educacion',47),
+(146,'Promoción Cultural y Recreativa','Fomento de actividades culturales y recreativas para la comunidad, incluyendo eventos, talleres y programas educativos.',6,12,7,'Cultural',48),
+(147,'Enseñanza Complementaria','Implementación de programas de enseñanza no contemplados en el currículo escolar regular, enfocados en habilidades específicas y desarrollo personal.',6,12,7,'Educación',49),
+(148,'Actividades Asociativas','Desarrollo de actividades diversas realizadas por asociaciones sin fines de lucro, abarcando eventos, talleres y programas comunitarios.',6,12,7,'Comunidad',49),
+(149,'Investigación y Desarrollo','Investigaciones y desarrollo experimental en el campo de las ciencias naturales y la ingeniería.',6,12,7,'Ciencia y Tecnología',50),
+(150,'Promoción Cultural y Recreativa','Promoción de actividades culturales o recreativas a través de fundaciones y corporaciones.',6,12,7,'Cultura y Recreación',50),
+(151,'Recuperación Metales','Recuperación y Reciclado de Desperdicios y Desechos Metálicos.',6,12,7,'Medio Ambiente',51),
+(152,'Recuperación Papel','Recuperación y Reciclado de Papel.',6,12,7,'Medio Ambiente',51),
+(153,'Recuperación Otros Desperdicios','Recuperación y Reciclado de Otros Desperdicios y Desechos N.C.P.',6,12,7,'Medio Ambiente',51),
+(154,'Actividades Asociativas','Actividades de Otras Asociaciones N.C.P.',6,12,7,'Social',51),
+(155,'Venta de Libros','Venta al por menor de libros en comercios especializados y venta al por menor por correo, por internet y vía telefónica.',6,12,7,'Comercio',52),
+(156,'Edicion de Libros','Edición de libros y publicaciones relacionadas.',6,12,7,'Editorial',52),
+(157,'Servicios de Apoyo','Otras actividades de servicios de apoyo a las empresas no clasificadas en otra parte.',6,12,7,'Servicios',52),
+(158,'Actividades de Asociacion','Actividades de otras asociaciones no clasificadas en otra parte.',6,12,7,'Administrativa',52),
+(159,'Silvicultura','Actividades de silvicultura y otras actividades forestales, excluyendo la explotación de viveros forestales.',6,12,7,'Forestal',53),
+(160,'Suministro de Comidas','Suministro industrial de comidas por encargo y concesión de servicios de alimentación.',6,12,7,'Alimentación',53),
+(161,'Asesoría Financiera','Empresas de asesoría y consultoría en inversión financiera y sociedades de apoyo al giro.',6,12,7,'Financiero',53),
+(162,'Consultoría de Gestión','Actividades de consultoría de gestión.',6,12,7,'Gestión',53),
+(163,'Servicios de Apoyo','Otras actividades de servicios de apoyo a las empresas.',6,12,7,'Empresarial',53),
+(164,'Consultoria de Gestion','Actividades de Consultoria de Gestion para el desarrollo productivo en la region de la Araucania.',6,12,7,'Gestion',54),
+(165,'Actividades de Asociacion','Realización de actividades propias de asociaciones no lucrativas, incluyendo gestión, administración y desarrollo de programas.',6,12,7,'Social',55),
+(166,'Agencia de Viajes','Actividades de Agencias de Viajes.',6,12,7,'Turismo',56),
+(167,'Asociaciones N.C.P.','Actividades de Otras Asociaciones N.C.P.',6,12,7,'Comunidad',56),
+(168,'Promoción Cultural y Recreativa','Fomento de actividades culturales y recreativas a través de la fundación, incluyendo eventos, talleres y programas educativos para la comunidad.',6,12,7,'Cultural',57),
+(169,'Venta por Correo/Internet','Venta al por menor por correo, internet y vía telefónica.',6,12,7,'Comercio',58),
+(170,'Promoción Cultural y Recreativa','Promoción de actividades culturales o recreativas a través de fundaciones y corporaciones.',6,12,7,'Cultura',58),
+(171,'Promoción Cultural y Recreación','Fomento de actividades culturales y recreativas a través de la fundación, abarcando diversas expresiones artísticas y esparcimiento comunitario.',6,12,7,'Cultural',59),
+(172,'Actividades de Asociaciones N.C.P.','Desarrollo de actividades diversas realizadas por asociaciones sin fines de lucro, enfocadas en el beneficio de la comunidad y la promoción de valores sociales.',6,12,7,'Social',59),
+(173,'Consultoria de Gestion','Actividades de Consultoria de Gestion.',6,12,7,'Gestion',60),
+(174,'Servicios de Apoyo Empresarial','Otras Actividades de Servicios de Apoyo A Las Empresas N.C.P.',6,12,7,'Empresarial',60),
+(175,'Produccion Escenica','Servicios de Produccion de Obras de Teatro, Conciertos, Espectaculos de Danza, Otras Prod. Escenicas.',6,12,7,'Cultural',60),
+(176,'Promocion Cultural y Recreativa','Fundaciones y Corporaciones, Asociaciones Que Promueven Actividades Culturales o Recreativas.',6,12,7,'Cultural',60),
+(177,'Servicios de Publicidad','Prestación de servicios de publicidad por parte de la asociación gremial.',6,12,7,'Publicidad',61),
+(178,'Actividades de Asociaciones','Desarrollo de actividades propias de asociaciones sin fines de lucro.',6,12,7,'Social',61),
+(179,'Publicidad y Servicios','Servicios de publicidad prestados por la organización, incluyendo diseño, creación y gestión de campañas publicitarias para diversas empresas y entidades.',6,12,7,'Publicidad',62),
+(180,'Servicios de Apoyo Empresarial','Otras actividades de servicios de apoyo a las empresas, tales como consultoría, capacitación y gestión administrativa, que no están clasificadas en otras secciones.',6,12,7,'Servicios Empresariales',62),
+(181,'Actividades de Asociación','Actividades realizadas por la asociación sin fines de lucro, incluyendo eventos, programas de desarrollo comunitario y promoción de la sostenibilidad.',6,12,7,'Desarrollo Comunitario',62),
+(182,'Venta de Libros','Venta al por menor de libros en comercios especializados.',6,12,7,'Comercio',63),
+(183,'Actividades de Asociaciones','Realización de actividades de otras asociaciones sin fines de lucro.',6,12,7,'Social',63),
+(184,'Enseñanza Complementaria','Implementación de programas de enseñanza no contemplados en el sistema educativo formal, buscando complementar la formación de individuos.',6,12,7,'Educación',64),
+(185,'Promoción Cultural y Recreativa','Desarrollo de actividades culturales y recreativas para fomentar la participación comunitaria y el enriquecimiento cultural de la población.',6,12,7,'Cultura',64),
+(186,'Consultoria de Gestion','Actividades de Consultoria de Gestion.',6,12,7,'Gestion',65),
+(187,'Servicios de Ingenieria','Empresas de Servicios de Ingenieria y Actividades Conexas de Consultoria Tecnica.',6,12,7,'Ingenieria',65),
+(188,'Servicios de Apoyo','Otras Actividades de Servicios de Apoyo A Las Empresas.',6,12,7,'Apoyo Empresarial',65),
+(189,'Enseñanza Tecnica','Enseñanza Superior En Centros de Formacion Tecnica.',6,12,7,'Educacion',65),
+(190,'Recuperacion de Desperdicios','Recuperacion y Reciclamiento de Otros Desperdicios y Desechos N.C.P.',6,12,7,'Ambiental',66),
+(191,'Consultoria de Gestion','Actividades de Consultoria de Gestion.',6,12,7,'Gestion',66),
+(192,'Ensayos y Analisis Tecnicos','Otros Servicios de Ensayos y Analisis Tecnicos.',6,12,7,'Tecnologia',66),
+(193,'Promocion Cultural','Fundaciones y Corporaciones, Asociaciones Que Promueven Actividades Culturales o Recreativas.',6,12,7,'Cultural',66),
+(194,'Asociaciones Empresariales','Actividades de Asociaciones Empresariales y de Empleadores.',6,12,7,'Empresarial',67),
+(195,'Otras Asociaciones','Actividades de Otras Asociaciones N.C.P.',6,12,7,'Social',67),
+(196,'Consultoría de Gestión','Desarrollo de actividades de consultoría de gestión para la cadena de producción forestal.',6,12,7,'Gestión Forestal',68),
+(197,'Investigacion y Desarrollo','Investigaciones y desarrollo experimental en el campo de las ciencias naturales y la ingeniería.',6,12,7,'Ciencia y Tecnologia',69),
+(198,'Actividades de Investigacion','Realización de actividades de investigación, incluyendo actividades de investigadores.',6,12,7,'Investigacion',69),
+(199,'Investigacion y Desarrollo','Investigaciones y desarrollo experimental en el campo de las ciencias naturales y la ingeniería.',6,12,7,'Ciencia y Tecnología',70),
+(200,'Enseñanza N.C.P.','Otros tipos de enseñanza no contemplados en la Clasificación Nacional de la Profesiones.',6,12,7,'Educación',70),
+(201,'Atencion de la Salud','Otros servicios de atención de la salud humana prestados por empresas.',6,12,7,'Salud',70),
+(202,'Forestación','Servicios de Forestación a cambio de una retribución o por contrata.',6,12,7,'Forestal',71),
+(203,'Apoyo Silvicultura','Otros servicios de apoyo a la silvicultura.',6,12,7,'Silvicultura',71),
+(204,'Consultoría Gestión','Actividades de consultoría de gestión.',6,12,7,'Gestión',71),
+(205,'Reservas Naturales','Actividades de jardines botánicos, zoológicos y reservas naturales.',6,12,7,'Conservación',71),
+(206,'Asociaciones','Actividades de otras asociaciones.',6,12,7,'Comunitaria',71),
+(207,'Servicios de Publicidad','Prestación de servicios de publicidad por parte de la fundación.',6,12,7,'Publicidad',72),
+(208,'Actividades Culturales y Recreativas','Promoción de actividades culturales y recreativas por parte de la fundación.',6,12,7,'Cultura y Recreación',72),
+(209,'Investigacion Ciencias Naturales','Investigaciones y desarrollo experimental en el campo de las ciencias naturales y la ingeniería.',6,12,7,'Ciencia',73),
+(210,'Actividades de Investigacion','Actividades de investigación, incluyendo actividades de investigadores.',6,12,7,'Investigacion',73),
+(211,'Servicios de Apoyo','Otras actividades de servicios de apoyo a las empresas.',6,12,7,'Servicios',73),
+(212,'Asociaciones N.C.P.','Realización de actividades de Otras Asociaciones N.C.P.',6,12,7,'Social',74),
+(213,'Diseño Especializado','Realización de otras actividades especializadas de diseño no clasificadas en otra parte.',6,12,7,'Diseño',75),
+(214,'Actividades de Asociación','Desarrollo de actividades de otras asociaciones no clasificadas en otra parte.',6,12,7,'Asociación',75);
+/*
+(215,'Promoción Cultural y Recreativa','Fomento de actividades culturales y recreativas a través de una corporación sin fines de lucro, abarcando diversas expresiones artísticas y promoviendo la participación comunitaria.',6,12,7,'Cultura',76),
+(216,'Asesoria Financiera','Empresa de Asesoria y Consultoria En Inversion Financiera, Sociedades de Apoyo Al Giro.',6,12,7,'Financiero',77),
+(217,'Gestion de Empresas','Asesoria y Gestion En La Compra o Venta de Pequeñas y Medianas Empresas.',6,12,7,'Empresarial',77),
+(218,'Enseñanza','Otros Tipos de Enseñanza N.C.P.',6,12,7,'Educación',77),
+(219,'Actividades Asociativas','Actividades de Otras Asociaciones N.C.P.',6,12,7,'Social',77),
+(220,'Consultoría de Gestión','Actividades de Consultoría de Gestión para la asociación gremial.',6,12,7,'Gestión',78);
+(221,'Servicios de Publicidad','Servicios de Publicidad Prestados Por Empresas para la asociación.',6,12,7,'Marketing',78),
+(222,'Servicios de Apoyo Empresarial','Otras Actividades de Servicios de Apoyo A Las Empresas N.C.P. para la asociación.',6,12,7,'Apoyo Empresarial',78),
+(223,'Actividades de Asociación','Actividades de Otras Asociaciones N.C.P. para la asociación gremial.',6,12,7,'Asociación',78),
+(224,'Elaboración de Productos Alimenticios','Elaboración de otros productos alimenticios no comprendidos en otras partidas.',6,12,7,'Alimentación',79),
+(225,'Venta de Productos Alimenticios','Venta al por menor en comercios especializados de huevos, confites y productos alimenticios no comprendidos en otras partidas.',6,12,7,'Comercio',79),
+(226,'Enseñanza Deportiva','Actividades de enseñanza deportiva y recreativa para la comunidad.',6,12,7,'Deporte',80),
+(227,'Otros Tipos de Enseñanza','Programas de enseñanza no cubiertos por otras clasificaciones.',6,12,7,'Educación',80),
+(228,'Actividades Deportivas','Desarrollo de otras actividades deportivas no clasificadas previamente.',6,12,7,'Deporte',80),
+(229,'Promoción Cultural y Recreativa','Actividades de promoción cultural y recreativa a través de fundaciones y asociaciones.',6,12,7,'Cultura',80),
+(230,'Consultoria de Gestion','Actividades de Consultoria de Gestion.',6,12,7,'Gestion',81),
+(231,'Enseñanza Primaria y Secundaria','Enseñanza Primaria, Secundaria Cientifico Humanista y Tecnico Profesional Privada.',6,12,7,'Educacion',81),
+(232,'Enseñanza Superior','Enseñanza Superior En Centros de Formacion Tecnica.',6,12,7,'Educacion',81),
+(233,'Servicios de Ingenieria','Prestación de servicios de ingeniería y actividades conexas de consultoría técnica.',6,12,7,'Ingeniería',82),
+(234,'Ensayos y Análisis Técnicos','Realización de otros servicios de ensayos y análisis técnicos (excepto actividades de plantas de revisión técnica).',6,12,7,'Análisis Técnico',82),
+(235,'Investigación y Desarrollo','Investigación y desarrollo experimental en el campo de las ciencias naturales y la ingeniería.',6,12,7,'Investigación',82),
+(236,'Consultoría de Gestión','Actividades de consultoría de gestión para mejorar la eficiencia y eficacia de organizaciones.',6,12,7,'Gestión',83),
+(237,'Asociaciones Profesionales','Desarrollo de actividades de asociaciones profesionales para promover el conocimiento y la colaboración.',6,12,7,'Profesional',83),
+(238,'Promoción Cultural y Recreativa','Promoción de actividades culturales y recreativas para la comunidad.',6,12,7,'Cultural',83),
+(239,'Actividades de Asociaciones N.C.P.','Realización de actividades de asociaciones sin fines de lucro.',6,12,7,'Social',83),
+(240,'Investigación y Desarrollo','Investigaciones y desarrollo experimental en el campo de las ciencias naturales y la ingeniería.',6,12,7,'Ciencia y Tecnología',84),
+(241,'Servicios de Traducción','Servicios de traducción e interpretación prestados por la fundación.',6,12,7,'Servicios',84),
+(242,'Enseñanza N.C.P.','Otros tipos de enseñanza no clasificados previamente.',6,12,7,'Educación',84),
+(243,'Actividades Extraterritoriales','Realización de actividades de organizaciones y órganos extraterritoriales.',6,12,7,'Internacional',85),
+(244,'Consultoría de Gestión','Actividades de Consultoría de Gestión.',6,12,7,'Gestión',86),
+(245,'Regulacion de Servicios Sanitarios','Regulacion de las actividades de organismos que prestan servicios sanitarios.',6,12,7,'Salud',87),
+(246,'Actividades de Esparcimiento','Otras actividades de esparcimiento y recreativas.',6,12,7,'Recreacion',87),
+(247,'Promocion Cultural y Recreativa','Fundaciones y corporaciones, asociaciones que promueven actividades culturales o recreativas.',6,12,7,'Cultura',87),
+(248,'Actividades de Asociaciones','Desarrollo de actividades de Otras Asociaciones N.C.P.',6,12,7,'Social',88),
+(249,'Consultoría de Gestión','Implementación de actividades de consultoría de gestión para optimizar procesos y mejorar la eficiencia organizacional.',6,12,7,'Gestión',89),
+(250,'Asociaciones N.C.P.','Desarrollo de actividades de asociaciones sin fines de lucro para promover el bienestar comunitario y apoyar iniciativas sociales.',6,12,7,'Social',89),
+(251,'Venta de Libros Mayoristas','Venta al por mayor de libros a distribuidores y minoristas.',6,12,7,'Comercio',90),
+(252,'Venta de Libros Minoristas','Venta al por menor de libros en comercios especializados para el público general.',6,12,7,'Comercio',90),
+(253,'Consultoría de Gestión','Actividades de consultoría de gestión para empresas y organizaciones.',6,12,7,'Consultoría',90),
+(254,'Servicios de Arquitectura','Servicios de arquitectura, incluyendo diseño de edificios y dibujo de planos de construcción.',6,12,7,'Construcción',90),
+(255,'Actividades Recreativas','Otras actividades de esparcimiento y recreación para la comunidad.',6,12,7,'Recreación',90),
+(256,'Promoción Cultural','Fundaciones y corporaciones que promueven actividades culturales o recreativas.',6,12,7,'Cultura',90),
+(257,'Apoyo a la Enseñanza','Actividades de apoyo a la enseñanza, incluyendo recursos educativos y capacitación para docentes.',6,12,7,'Educación',91),
+(258,'Promoción Cultural y Recreativa','Promoción de actividades culturales y recreativas para la comunidad, incluyendo eventos, talleres y programas artísticos.',6,12,7,'Cultura',91),
+(259,'Consultoria de Gestion','Actividades de Consultoria de Gestion.',6,12,7,'Gestion',92),
+(260,'Investigacion','Actividades de Investigacion (incluye Actividades de Investigadores y Detectives Privados).',6,12,7,'Investigacion',92),
+(261,'Convenciones y Exposiciones','Organizacion de Convenciones y Exposiciones Comerciales.',6,12,7,'Comercial',92),
+(262,'Enseñanza','Otros Tipos de Enseñanza N.C.P.',6,12,7,'Educacion',92),
+(263,'Asociaciones Empresariales','Actividades de Asociaciones Empresariales y de Empleadores.',6,12,7,'Empresarial',92),
+(264,'Promoción Cultural','Fundaciones y Corporaciones, Asociaciones Que Promueven Actividades Culturales o Recreativas.',6,12,7,'Cultural',92),
+(265,'Asesoría Financiera','Empresas de Asesoria y Consultoria En Inversion Financiera, Sociedades de Apoyo Al Giro.',6,12,7,'Financiero',93),
+(266,'Alquiler de Bienes','Alquiler de Bienes Inmuebles Amoblados o con Equipos y Maquinarias.',6,12,7,'Inmobiliario',93),
+(267,'Investigación y Desarrollo','Investigaciones y Desarrollo Experimental En El Campo de Las Ciencias Naturales y La Ingenieria.',6,12,7,'Investigación',93),
+(268,'Servicios de Apoyo','Otras Actividades de Servicios de Apoyo A Las Empresas N.C.P.',6,12,7,'Empresarial',93),
+(269,'Elaboración de Salmonidos','Elaboración y conservación de salmonidos, incluyendo procesos de transformación y empaque.',6,12,7,'Pesquero',94),
+(270,'Venta Mayorista de Productos del Mar','Venta al por mayor de productos del mar como pescados, mariscos y algas a distribuidores y clientes comerciales.',6,12,7,'Comercial',94),
+(271,'Venta Minorista de Productos del Mar','Venta al por menor de pescado, mariscos y productos conexos en comercios especializados para consumidores finales.',6,12,7,'Comercial',94),
+(272,'Reproducción de Moluscos','Reproducción y cría de moluscos, crustáceos y gusanos marinos.',6,12,7,'Acuicultura',95),
+(273,'Servicios de Acuicultura Marina','Prestación de servicios relacionados con la acuicultura marina.',6,12,7,'Acuicultura',95),
+(274,'Venta al por mayor de Productos del Mar','Venta al por mayor de productos del mar (pescados, mariscos y algas).',6,12,7,'Comercio',95),
+(275,'Venta al por menor de Productos del Mar','Venta al por menor en comercios especializados de pescado, mariscos y productos conexos.',6,12,7,'Comercio',95),
+(276,'Apoyo a la Agricultura','Actividades de apoyo a la agricultura para el desarrollo local y la economía solidaria.',6,12,7,'Agricultura',96),
+(277,'Venta Minorista','Otras actividades de venta por menor no realizadas en comercios, puestos de venta o mercados.',6,12,7,'Comercio',96),
+(278,'Consultoría de Gestión','Actividades de consultoría de gestión para el desarrollo local y la economía solidaria.',6,12,7,'Gestión',96),
+(279,'Enseñanza N.C.P.','Otros tipos de enseñanza no comprendidos en otras clasificaciones.',6,12,7,'Educación',96),
+(280,'Asociación N.C.P.','Actividades de Otras Asociaciones N.C.P.',6,12,7,'Social',97),
+(281,'Consultoria de Gestion','Actividades de Consultoria de Gestion.',6,12,7,'Gestion',98),
+(282,'Enseñanza Deportiva','Enseñanza Deportiva y Recreativa.',6,12,7,'Deportiva',98),
+(283,'Promoción Cultural','Fundaciones y Corporaciones, Asociaciones Que Promueven Actividades Culturales o Recreativas.',6,12,7,'Cultural',98),
+(284,'Actividades de Asociaciones N.C.P.','Desarrollo de actividades propias de asociaciones sin fines de lucro, abarcando diversas iniciativas y proyectos sociales.',6,12,7,'Social',99),
+(285,'Promoción Cultural','Fomento de actividades culturales y recreativas a través de fundaciones y corporaciones.',6,12,7,'Cultural',100),
+(286,'Actividades Asociativas','Desarrollo de actividades propias de asociaciones sin fines de lucro.',6,12,7,'Social',100),
+(287,'Asesoría y Gestión de PyMEs','Asesoría y gestión en la compra o venta de pequeñas y medianas empresas.',6,12,7,'Empresarial',101);
+*/
