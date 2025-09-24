@@ -5,10 +5,10 @@ https://registros19862.gob.cl/
 CREATE TABLE Postulacion (
 	ID bigint NOT NULL AUTO_INCREMENT,
 	Beneficiario bigint NOT NULL,
-	Proyecto bigint NOT NULL,
+	Proyecto bigint NULL,
 	Instrumento bigint NOT NULL,
 	Resultado bigint NOT NULL default 3,
-	MontoObtenido int NOT NULL,
+	MontoObtenido int NULL,
 	FechaDePostulacion date NULL,
 	FechaDeResultado date NULL,
 	Detalle varchar(2000) NULL,
