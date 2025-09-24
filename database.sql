@@ -49,8 +49,7 @@ VALUES
 	(1,"JU","Juridica"),
 	(2,"NA","Natural");
 
-CREATE VIEW VerTiposDePersona AS SELECT Nombre FROM TipoDePersona;
-/*
+CREATE VIEW VerTiposDePersona AS SELECT Nombre FROM TipoDePersona;/*
 Tipo de empresa que representa una agrupacion en el contexto legal.
 https://ipp.cl/general/tipos-de-empresas-en-chile/
 */
@@ -67,8 +66,7 @@ VALUES
 	(3,"SPA","Sociedad por Acciones"),
 	(4,"EIRL","Empresa Individual de Responsabilidad Limitada");
 
-CREATE VIEW VerTiposDeEmpresa AS SELECT Nombre FROM TipoDeEmpresa;
-/*
+CREATE VIEW VerTiposDeEmpresa AS SELECT Nombre FROM TipoDeEmpresa;/*
 Tipo de perfil que asume la empresa, para este contexto
 representa su escala.
 */
@@ -97,6 +95,9 @@ https://www.rutificador.co/empresas/buscar
 https://www.boletaofactura.com/
 https://registros19862.gob.cl/
 https://dequienes.cl/
+https://www.cmfchile.cl/portal/principal/613/w3-propertyvalue-18556.html#enti_reportes
+https://es.wikipedia.org/wiki/Anexo:Empresas_de_Chile
+https://es.wikipedia.org/wiki/Categor%C3%ADa:Empresas_de_Chile
 */
 CREATE TABLE Beneficiario (
 	ID bigint NOT NULL AUTO_INCREMENT,
@@ -407,7 +408,8 @@ VALUES
 	(10,"CEA","Centros e Investigación Asociativa"),
 	(11,"IAP","Investigación Aplicada"),
 	(12,"REC","Redes, Estrategia y Conocimiento");
-/*
+
+CREATE VIEW VerTiposDeBeneficio AS SELECT Nombre FROM TipoDeBeneficio;/*
 Clase que representa los fondos concursables a los que los proyectos pueden postular.
 Esta clase contiene todos los parametros y requisitos que dictan la posterior evaluacion.
 Representa tanto los fondos actuales como los historicos, en donde la fecha de cierre
