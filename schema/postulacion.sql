@@ -23,9 +23,12 @@ CREATE VIEW VerTodasLasPostulaciones AS SELECT
 	Postulacion.Beneficiario,
 	Postulacion.Proyecto,
 	Postulacion.Instrumento,
-	Postulacion.Resultado,
+	Resultado.Nombre AS Resultado,
 	Postulacion.MontoObtenido,
 	Postulacion.FechaDePostulacion,
 	Postulacion.FechaDeResultado,
 	Postulacion.Detalle
-FROM Postulacion;
+FROM 
+	Postulacion, Resultado
+WHERE
+	Resultado.ID=Postulacion.Resultado;
