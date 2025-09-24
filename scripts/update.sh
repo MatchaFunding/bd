@@ -1,26 +1,4 @@
 # Borra la base de datos, crea una nueva con el mismo nombre,
 # carga los modelos en schema y finalmente pobla las tablas
-cat \
-../schema/crear_base_de_datos.sql \
-../schema/region.sql \
-../schema/tipo_de_persona.sql \
-../schema/tipo_de_empresa.sql \
-../schema/tipo_de_perfil.sql \
-../schema/beneficiario.sql \
-../schema/proyecto.sql \
-../schema/sexo.sql \
-../schema/persona.sql \
-../schema/miembro.sql \
-../schema/colaborador.sql \
-../schema/usuario.sql \
-../schema/consorcio.sql \
-../schema/financiador.sql \
-../schema/estado_de_fondo.sql \
-../schema/tipo_de_beneficio.sql \
-../schema/instrumento.sql \
-../schema/resultado.sql \
-../schema/postulacion.sql \
-../schema/idea.sql \
-../schema/propuesta.sql \
-../schema/insertar-datos.sql \
-| sudo mariadb
+./merge.sh;
+cat ../database.sql | sudo mariadb
