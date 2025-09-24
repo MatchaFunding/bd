@@ -17,3 +17,5 @@ VALUES
 	(6,"PAY","Patrocinio Institucional"),
 	(7,"DES","Desierto"),
 	(8,"CER","Cerrrado");
+
+CREATE VIEW VerEstadosDeFondo AS SELECT Nombre FROM EstadoDeFondo;
