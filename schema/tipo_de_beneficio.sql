@@ -21,3 +21,5 @@ VALUES
 	(10,"CEA","Centros e Investigación Asociativa"),
 	(11,"IAP","Investigación Aplicada"),
 	(12,"REC","Redes, Estrategia y Conocimiento");
+
+CREATE VIEW VerTiposDeBeneficio AS SELECT Nombre FROM TipoDeBeneficio;
