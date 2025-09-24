@@ -1,1 +1,0 @@
-cat *sql | sudo mariadb

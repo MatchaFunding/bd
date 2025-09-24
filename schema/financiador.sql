@@ -18,9 +18,9 @@ CREATE TABLE Financiador (
 	Perfil bigint NOT NULL,
 	RUTdeEmpresa varchar(12) NOT NULL,
 	RUTdeRepresentante varchar(12) NOT NULL,
-	Mision varchar(1000) NULL default "",
-	Vision varchar(1000) NULL default "",
-	Valores varchar(1000) NULL default "",
+	Mision varchar(1000) NULL,
+	Vision varchar(1000) NULL,
+	Valores varchar(1000) NULL,
 	PRIMARY KEY (ID),
 	FOREIGN KEY (RegionDeCreacion) REFERENCES Region(ID),
 	FOREIGN KEY (TipoDePersona) REFERENCES TipoDePersona(ID),
@@ -31,7 +31,7 @@ CREATE TABLE Financiador (
 /*
 Vista que muestra los beneficiarios en formato legible
 */
-CREATE VIEW VerTodosLosFinanciadors AS SELECT
+CREATE VIEW VerTodosLosFinanciadores AS SELECT
 	Financiador.Nombre,
 	Region.Nombre AS RegionDeCreacion,
 	Financiador.FechaDeCreacion,
