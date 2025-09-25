@@ -219,7 +219,7 @@ CREATE TABLE Persona (
 	Apellido varchar(200) NULL,
 	Sexo bigint NOT NULL,
 	RUT varchar(12) NOT NULL,
-	FechaDeNacimiento date NOT NULL,
+	FechaDeNacimiento date NULL,
 	Ocupacion varchar(1000) NULL,
 	Correo varchar(200) NULL,
 	Telefono tinyint NULL,
