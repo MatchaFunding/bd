@@ -28,4 +28,5 @@ VALUES
 	(16,"MA","Magallanes"),
 	(17,"NA","Nacional");
 
-CREATE VIEW VerRegiones AS SELECT Nombre FROM Region;
+CREATE TABLE VerRegiones AS
+SELECT Nombre FROM Region;

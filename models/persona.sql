@@ -19,20 +19,3 @@ CREATE TABLE Persona (
 	PRIMARY KEY (ID),
 	FOREIGN KEY (Sexo) REFERENCES Sexo(ID)
 );
-
-/*
-Vista que muestra las personas en formato legible
-*/
-CREATE VIEW VerTodasLasPersonas AS SELECT
-	Persona.Nombre,
-	Persona.Apellido,
-	Sexo.Nombre AS Sexo,
-	Persona.RUT,
-	Persona.FechaDeNacimiento,
-	Persona.Ocupacion,
-	Persona.Correo,
-	Persona.Telefono
-FROM
-	Persona, Sexo
-WHERE
-	Sexo.ID=Persona.Sexo;

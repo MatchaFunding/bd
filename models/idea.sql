@@ -14,14 +14,3 @@ CREATE TABLE Idea (
 	PRIMARY KEY (ID),
 	FOREIGN KEY (Usuario) REFERENCES Usuario(ID)
 );
-
-CREATE VIEW VerTodasLasIdeas AS SELECT
-	Idea.Usuario,
-	Idea.Campo,
-	Idea.Problema,
-	Idea.Publico,
-	Idea.Innovacion,
-	Idea.Oculta,
-	Idea.FechaDeCreacion,
-	Idea.UltimaFechaDeModificacion
-FROM Idea;

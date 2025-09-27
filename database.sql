@@ -1,6 +1,11 @@
+-- Borra, Crea y Usa la Base de Datos de MatchaFunding
 DROP DATABASE IF EXISTS MatchaFundingMySQL;
 CREATE DATABASE IF NOT EXISTS MatchaFundingMySQL;
 USE MatchaFundingMySQL;
+
+-- Aumenta el cache disponible para optimizar vistas 
+-- estaticas como datos publicos u historicos
+SET GLOBAL query_cache_size = 800000000;
 /*
 Regiones de Chile como su propia tabla para poder hacer la validacion correcta
 Es un campo sumamanete comun en este contexto.
@@ -31,7 +36,8 @@ VALUES
 	(16,"MA","Magallanes"),
 	(17,"NA","Nacional");
 
-CREATE VIEW VerRegiones AS SELECT Nombre FROM Region;
+CREATE TABLE VerRegiones AS
+SELECT Nombre FROM Region;
 /*
 Tipo de persona que representa a una empresa en terminos juridicos. 
 En este contexto los beneficiarios y financiadores
@@ -49,7 +55,8 @@ VALUES
 	(1,"JU","Juridica"),
 	(2,"NA","Natural");
 
-CREATE VIEW VerTiposDePersona AS SELECT Nombre FROM TipoDePersona;/*
+CREATE TABLE VerTiposDePersona AS
+SELECT Nombre FROM TipoDePersona;/*
 Tipo de empresa que representa una agrupacion en el contexto legal.
 https://ipp.cl/general/tipos-de-empresas-en-chile/
 */
@@ -66,7 +73,9 @@ VALUES
 	(3,"SPA","Sociedad por Acciones"),
 	(4,"EIRL","Empresa Individual de Responsabilidad Limitada");
 
-CREATE VIEW VerTiposDeEmpresa AS SELECT Nombre FROM TipoDeEmpresa;/*
+CREATE TABLE VerTiposDeEmpresa AS
+SELECT Nombre FROM TipoDeEmpresa;
+/*
 Tipo de perfil que asume la empresa, para este contexto
 representa su escala.
 */
@@ -85,7 +94,8 @@ VALUES
 	(5,"ORG","Organizacion"),
 	(6,"PER","Persona");
 
-CREATE VIEW VerTiposDePerfil AS SELECT Nombre FROM TipoDePerfil;
+CREATE TABLE VerTiposDePerfil AS
+SELECT Nombre FROM TipoDePerfil;
 /*
 Clase que representa la empresa, emprendimiento, grupo de investigacion, etc.
 que desea postular al fondo. La informacion debe regirse por la descripcion
@@ -119,31 +129,6 @@ CREATE TABLE Beneficiario (
 	FOREIGN KEY (TipoDeEmpresa) REFERENCES TipoDeEmpresa(ID),
 	FOREIGN KEY (Perfil) REFERENCES TipoDePerfil(ID)
 );
-
-/*
-Vista que muestra los beneficiarios en formato legible
-*/
-CREATE VIEW VerTodosLosBeneficiarios AS SELECT
-	Beneficiario.Nombre,
-	Region.Nombre AS RegionDeCreacion,
-	Beneficiario.FechaDeCreacion,
-	Beneficiario.Direccion,
-	TipoDePersona.Nombre AS TipoDePersona,
-	TipoDeEmpresa.Nombre AS TipoDeEmpresa,
-	TipoDePerfil.Nombre AS Perfil,
-	Beneficiario.RUTdeEmpresa,
-	Beneficiario.RUTdeRepresentante,
-	Beneficiario.Mision,
-	Beneficiario.Vision,
-	Beneficiario.Valores
-FROM
-	Beneficiario, Region, TipoDePersona, 
-	TipoDeEmpresa, TipoDePerfil
-WHERE
-	Region.ID=Beneficiario.RegionDeCreacion AND
-	TipoDePersona.ID=Beneficiario.TipoDePersona AND
-	TipoDeEmpresa.ID=Beneficiario.TipoDeEmpresa AND
-	TipoDePerfil.ID=Beneficiario.Perfil;
 /*
 Clase que representa los proyectos de una misma empresa.
 https://www.boletaofactura.com/
@@ -169,24 +154,6 @@ CREATE TABLE Proyecto (
 	FOREIGN KEY (Beneficiario) REFERENCES Beneficiario(ID),
 	FOREIGN KEY (Alcance) REFERENCES Region(ID)
 );
-
-/*
-Vista que muestra los proyectos en formato legible
-*/
-CREATE VIEW VerTodosLosProyectos AS SELECT
-	Proyecto.Beneficiario,
-	Proyecto.Titulo,
-	Proyecto.Descripcion,
-	Proyecto.DuracionEnMesesMinimo,
-	Proyecto.DuracionEnMesesMaximo,
-	Region.Nombre AS Alcance,
-	Proyecto.Area,
-	Proyecto.Problema,
-	Proyecto.Publico
-FROM
-	Proyecto, Region
-WHERE
-	Region.ID=Proyecto.Alcance;
 /*
 Genero u orientacion con la cual una persona se identifica.
 Preferi hacerlo una tabla para realizar las validaciones de
@@ -204,8 +171,8 @@ VALUES
 	(2,"MUJ","Mujer"),
 	(3,"NA","Otro");
 
-CREATE VIEW VerSexos AS SELECT Nombre FROM Sexo;
-/*
+CREATE TABLE VerSexos AS
+SELECT Nombre FROM Sexo;/*
 Clase que representa a una persona natural, la cual puede ser miembro de una 
 empresa o proyecto. Abajo de este estan las asociaciones entre persona y 
 agrupacion.
@@ -226,23 +193,6 @@ CREATE TABLE Persona (
 	PRIMARY KEY (ID),
 	FOREIGN KEY (Sexo) REFERENCES Sexo(ID)
 );
-
-/*
-Vista que muestra las personas en formato legible
-*/
-CREATE VIEW VerTodasLasPersonas AS SELECT
-	Persona.Nombre,
-	Persona.Apellido,
-	Sexo.Nombre AS Sexo,
-	Persona.RUT,
-	Persona.FechaDeNacimiento,
-	Persona.Ocupacion,
-	Persona.Correo,
-	Persona.Telefono
-FROM
-	Persona, Sexo
-WHERE
-	Sexo.ID=Persona.Sexo;
 /*
 Clase que representa a una persona que es parte de una empresa, 
 agrupacion o grupo de investigacion.
@@ -256,10 +206,6 @@ CREATE TABLE Miembro (
 	FOREIGN KEY (Beneficiario) REFERENCES Beneficiario(ID),
 	FOREIGN KEY (Persona) REFERENCES Persona(ID)
 );
-
-CREATE VIEW VerMiembros AS SELECT 
-Persona, Beneficiario 
-FROM Miembro;
 /*
 Clase que representa a una persona que es parte de un proyecto que busca fondos.
 https://dequienes.cl/
@@ -284,16 +230,7 @@ CREATE TABLE Usuario (
 	Telefono tinyint NULL,
 	PRIMARY KEY (ID),
 	FOREIGN KEY (Persona) REFERENCES Persona(ID)
-);
-
-CREATE VIEW VerTodosLosUsuarios AS SELECT
-	Usuario.NombreDeUsuario,
-	Usuario.Contrasena,
-	Usuario.Correo,
-	Usuario.Persona
-FROM
-	Usuario;
-/*
+);/*
 Agrupacion de multiples empresas y agrupaciones que pretenden postular
 en conjunto a un instrumento / fondo comun. A veces puede ser un
 requisito para postular a ciertos beneficios.
@@ -336,10 +273,15 @@ CREATE TABLE Financiador (
 	FOREIGN KEY (Perfil) REFERENCES TipoDePerfil(ID)
 );
 
+INSERT INTO Financiador (ID,Nombre,FechaDeCreacion,RegionDeCreacion,Direccion,TipoDePersona,TipoDeEmpresa,Perfil,RUTdeEmpresa,RUTdeRepresentante) VALUES
+	(1,'ANID','2005-06-23',7,'N/A',1,1,3,'60.915.000-9','14.131.587-0'),
+	(2,'CORFO','2005-06-23',7,'N/A',1,1,3,'60.706.000-2','78.i39.379-3');
+
 /*
 Vista que muestra los beneficiarios en formato legible
 */
-CREATE VIEW VerTodosLosFinanciadores AS SELECT
+CREATE TABLE VerTodosLosFinanciadores AS
+SELECT
 	Financiador.Nombre,
 	Region.Nombre AS RegionDeCreacion,
 	Financiador.FechaDeCreacion,
@@ -353,18 +295,13 @@ CREATE VIEW VerTodosLosFinanciadores AS SELECT
 	Financiador.Vision,
 	Financiador.Valores
 FROM
-	Financiador, Region, TipoDePersona, 
+	Financiador, Region, TipoDePersona,
 	TipoDeEmpresa, TipoDePerfil
 WHERE
 	Region.ID=Financiador.RegionDeCreacion AND
 	TipoDePersona.ID=Financiador.TipoDePersona AND
 	TipoDeEmpresa.ID=Financiador.TipoDeEmpresa AND
 	TipoDePerfil.ID=Financiador.Perfil;
-
-INSERT INTO Financiador (ID,Nombre,FechaDeCreacion,RegionDeCreacion,Direccion,TipoDePersona,TipoDeEmpresa,Perfil,RUTdeEmpresa,RUTdeRepresentante) VALUES
-	(1,'ANID','2005-06-23',7,'N/A',1,1,3,'60.915.000-9','14.131.587-0'),
-	(2,'CORFO','2005-06-23',7,'N/A',1,1,3,'60.706.000-2','78.i39.379-3'),
-	(3,'FondosGob','2005-06-23',7,'N/A',1,1,3,'60.801.000-9','60.801.000-9');
 /*
 Estado en el que se encuentra un fondo o instrumento.
 */
@@ -384,8 +321,6 @@ VALUES
 	(6,"PAY","Patrocinio Institucional"),
 	(7,"DES","Desierto"),
 	(8,"CER","Cerrrado");
-
-CREATE VIEW VerEstadosDeFondo AS SELECT Nombre FROM EstadoDeFondo;
 /*
 Tipo de beneficio que otorga cierto fondo o instrumento.
 */
@@ -410,7 +345,9 @@ VALUES
 	(11,"IAP","Investigación Aplicada"),
 	(12,"REC","Redes, Estrategia y Conocimiento");
 
-CREATE VIEW VerTiposDeBeneficio AS SELECT Nombre FROM TipoDeBeneficio;/*
+CREATE TABLE VerTiposDeBeneficio AS
+SELECT Nombre FROM TipoDeBeneficio;
+/*
 Clase que representa los fondos concursables a los que los proyectos pueden postular.
 Esta clase contiene todos los parametros y requisitos que dictan la posterior evaluacion.
 Representa tanto los fondos actuales como los historicos, en donde la fecha de cierre
@@ -449,39 +386,6 @@ CREATE TABLE Instrumento (
 	FOREIGN KEY (TipoDePerfil) REFERENCES TipoDePerfil(ID),
 	FOREIGN KEY (Financiador) REFERENCES Financiador(ID)
 );
-
-/*
-Vista que muestra los instrumentos en formato legible
-*/
-CREATE VIEW VerTodosLosInstrumentos AS SELECT
-	Instrumento.Titulo,
-	Financiador.Nombre AS Financiador,
-	Region.Nombre AS Alcance,
-	Instrumento.Descripcion,
-	Instrumento.FechaDeApertura,
-	Instrumento.FechaDeCierre,
-	Instrumento.DuracionEnMeses,
-	Instrumento.Beneficios,
-	Instrumento.Requisitos,
-	Instrumento.MontoMinimo,
-	Instrumento.MontoMaximo,
-	EstadoDeFondo.Nombre AS Estado,
-	TipoDeBeneficio.Nombre AS TipoDeBeneficio,
-	TipoDePerfil.Nombre AS TipoDePerfil,
-	Instrumento.ObjetivoGeneral,
-	Instrumento.ObjetivoEspecifico,
-	Instrumento.ResultadoEsperado,
-	Instrumento.EnlaceDelDetalle,
-	Instrumento.EnlaceDeLaFoto
-FROM
-	Instrumento, Financiador, Region,
-	EstadoDeFondo, TipoDeBeneficio, TipoDePerfil
-WHERE
-	Financiador.ID=Instrumento.Financiador AND
-	Region.ID=Instrumento.Alcance AND
-	EstadoDeFondo.ID=Instrumento.Estado AND
-	TipoDeBeneficio.ID=Instrumento.TipoDeBeneficio AND
-	TipoDePerfil.ID=Instrumento.TipoDePerfil;
 /*
 Clase que representa los estados en los que se puede encontrar una postulacion.
 Los resultados solo pueden caer dentro de las tres categorias.
@@ -497,7 +401,9 @@ VALUES
 	(1,"ADJ","Adjudicado"),
 	(2,"REC","Rechazado"),
 	(3,"PEN","Pendiente");
-/*
+
+CREATE TABLE VerResultados AS
+SELECT Nombre FROM Resultado;/*
 Clase que representa las postulaciones de un proyecto a un fondo
 https://registros19862.gob.cl/
 */
@@ -517,20 +423,6 @@ CREATE TABLE Postulacion (
 	FOREIGN KEY (Instrumento) REFERENCES Instrumento(ID),
 	FOREIGN KEY (Resultado) REFERENCES Resultado(ID)
 );
-
-CREATE VIEW VerTodasLasPostulaciones AS SELECT
-	Postulacion.Beneficiario,
-	Postulacion.Proyecto,
-	Postulacion.Instrumento,
-	Resultado.Nombre AS Resultado,
-	Postulacion.MontoObtenido,
-	Postulacion.FechaDePostulacion,
-	Postulacion.FechaDeResultado,
-	Postulacion.Detalle
-FROM 
-	Postulacion, Resultado
-WHERE
-	Resultado.ID=Postulacion.Resultado;
 /*
 Clase que representa la idea para un proyecto
 */
@@ -547,17 +439,6 @@ CREATE TABLE Idea (
 	PRIMARY KEY (ID),
 	FOREIGN KEY (Usuario) REFERENCES Usuario(ID)
 );
-
-CREATE VIEW VerTodasLasIdeas AS SELECT
-	Idea.Usuario,
-	Idea.Campo,
-	Idea.Problema,
-	Idea.Publico,
-	Idea.Innovacion,
-	Idea.Oculta,
-	Idea.FechaDeCreacion,
-	Idea.UltimaFechaDeModificacion
-FROM Idea;
 /*
 Clase que representa la propuesta de la IA tras recibir una idea
 */
@@ -611,3 +492,168 @@ INSERT INTO Miembro (Persona,Beneficiario) VALUES
 (4,1),
 (5,1),
 (6,1);
+/*
+Conjunto de vistas pre-almacenadas como tablas para maximizar
+el rendimiento. Se usa para datos que son estaticos, tales como
+historicos, publicos y comparativas para hacer el calce a traves
+de la IA con los datos de los usuarios.
+*/
+
+/*
+Vista que muestra los beneficiarios en formato legible
+*/
+CREATE TABLE VerTodosLosBeneficiarios AS
+SELECT
+	Beneficiario.Nombre,
+	Region.Nombre AS RegionDeCreacion,
+	Beneficiario.FechaDeCreacion,
+	Beneficiario.Direccion,
+	TipoDePersona.Nombre AS TipoDePersona,
+	TipoDeEmpresa.Nombre AS TipoDeEmpresa,
+	TipoDePerfil.Nombre AS Perfil,
+	Beneficiario.RUTdeEmpresa,
+	Beneficiario.RUTdeRepresentante,
+	Beneficiario.Mision,
+	Beneficiario.Vision,
+	Beneficiario.Valores
+FROM
+	Beneficiario, Region, TipoDePersona,
+	TipoDeEmpresa, TipoDePerfil
+WHERE
+	Region.ID=Beneficiario.RegionDeCreacion AND
+	TipoDePersona.ID=Beneficiario.TipoDePersona AND
+	TipoDeEmpresa.ID=Beneficiario.TipoDeEmpresa AND
+	TipoDePerfil.ID=Beneficiario.Perfil;
+
+/*
+Vista que muestra los colaboradores en formato legible
+*/
+CREATE TABLE VerTodosLosColaboradores AS
+SELECT
+	Persona.Nombre AS Persona,
+	Proyecto.Titulo AS Proyecto
+FROM
+	Colaborador, Persona, Proyecto
+WHERE
+	Persona.ID=Colaborador.Persona AND
+	Proyecto.ID=Colaborador.Proyecto;
+
+/*
+Vista que muestra los consorcios en formato legible
+*/
+CREATE TABLE VerTodosLosConsorcios AS
+SELECT
+	Beneficiario.Nombre AS PrimerBeneficiario,
+	Beneficiario.Nombre AS SegundoBeneficiario
+FROM
+	Consorcio, Beneficiario
+WHERE
+	Beneficiario.ID=Consorcio.PrimerBeneficiario AND
+	Beneficiario.ID=Consorcio.SegundoBeneficiario;
+
+/*
+Vista que muestra los instrumentos en formato legible
+*/
+CREATE TABLE VerTodosLosInstrumentos AS
+SELECT
+	Instrumento.Titulo,
+	Financiador.Nombre AS Financiador,
+	Region.Nombre AS Alcance,
+	Instrumento.Descripcion,
+	Instrumento.FechaDeApertura,
+	Instrumento.FechaDeCierre,
+	Instrumento.DuracionEnMeses,
+	Instrumento.Beneficios,
+	Instrumento.Requisitos,
+	Instrumento.MontoMinimo,
+	Instrumento.MontoMaximo,
+	EstadoDeFondo.Nombre AS Estado,
+	TipoDeBeneficio.Nombre AS TipoDeBeneficio,
+	TipoDePerfil.Nombre AS TipoDePerfil,
+	Instrumento.ObjetivoGeneral,
+	Instrumento.ObjetivoEspecifico,
+	Instrumento.ResultadoEsperado,
+	Instrumento.EnlaceDelDetalle,
+	Instrumento.EnlaceDeLaFoto
+FROM
+	Instrumento, Financiador, Region,
+	EstadoDeFondo, TipoDeBeneficio, TipoDePerfil
+WHERE
+	Financiador.ID=Instrumento.Financiador AND
+	Region.ID=Instrumento.Alcance AND
+	EstadoDeFondo.ID=Instrumento.Estado AND
+	TipoDeBeneficio.ID=Instrumento.TipoDeBeneficio AND
+	TipoDePerfil.ID=Instrumento.TipoDePerfil;
+
+/*
+Vista que muestra los miembros en formato legible
+*/
+CREATE TABLE VerTodosLosMiembros AS
+SELECT
+	Persona.Nombre AS Persona,
+	Beneficiario.Nombre AS Beneficiario
+FROM
+	Miembro, Persona, Beneficiario
+WHERE
+	Persona.ID=Miembro.Persona AND
+	Beneficiario.ID=Miembro.Beneficiario;
+
+/*
+Vista que muestra las personas en formato legible
+*/
+CREATE TABLE VerTodasLasPersonas AS SELECT
+	Persona.Nombre,
+	Persona.Apellido,
+	Sexo.Nombre AS Sexo,
+	Persona.RUT,
+	Persona.FechaDeNacimiento,
+	Persona.Ocupacion,
+	Persona.Correo,
+	Persona.Telefono
+FROM
+	Persona, Sexo
+WHERE
+	Sexo.ID=Persona.Sexo;
+
+/*
+Vista que muestra las postulaciones en formato legible
+*/
+CREATE TABLE VerTodasLasPostulaciones AS SELECT
+	Beneficiario.Nombre AS Beneficiario,
+	Proyecto.Titulo AS Proyecto,
+	Instrumento.Titulo AS Instrumento,
+	Resultado.Nombre AS Resultado,
+	Postulacion.MontoObtenido,
+	Postulacion.FechaDePostulacion,
+	Postulacion.FechaDeResultado,
+	Postulacion.Detalle
+FROM
+	Postulacion,
+	Beneficiario,
+	Proyecto,
+	Instrumento,
+	Resultado
+WHERE
+	Beneficiario.ID=Postulacion.Beneficiario AND
+	Proyecto.ID=Postulacion.Proyecto AND
+	Instrumento.ID=Postulacion.Instrumento AND
+	Resultado.ID=Postulacion.Resultado;
+
+/*
+Vista que muestra los proyectos en formato legible
+*/
+CREATE TABLE VerTodosLosProyectos AS SELECT
+	Beneficiario.Nombre AS Beneficiario,
+	Proyecto.Titulo,
+	Proyecto.Descripcion,
+	Proyecto.DuracionEnMesesMinimo,
+	Proyecto.DuracionEnMesesMaximo,
+	Region.Nombre AS Alcance,
+	Proyecto.Area,
+	Proyecto.Problema,
+	Proyecto.Publico
+FROM
+	Proyecto, Beneficiario, Region
+WHERE
+	Beneficiario.ID=Proyecto.Beneficiario AND
+	Region.ID=Proyecto.Alcance;

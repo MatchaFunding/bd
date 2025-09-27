@@ -22,4 +22,5 @@ cat \
 ../models/idea.sql \
 ../models/propuesta.sql \
 ../models/insertar-datos.sql \
+../models/vistas-estaticas.sql \
 > ../database.sql

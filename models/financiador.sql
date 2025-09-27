@@ -28,10 +28,15 @@ CREATE TABLE Financiador (
 	FOREIGN KEY (Perfil) REFERENCES TipoDePerfil(ID)
 );
 
+INSERT INTO Financiador (ID,Nombre,FechaDeCreacion,RegionDeCreacion,Direccion,TipoDePersona,TipoDeEmpresa,Perfil,RUTdeEmpresa,RUTdeRepresentante) VALUES
+	(1,'ANID','2005-06-23',7,'N/A',1,1,3,'60.915.000-9','14.131.587-0'),
+	(2,'CORFO','2005-06-23',7,'N/A',1,1,3,'60.706.000-2','78.i39.379-3');
+
 /*
 Vista que muestra los beneficiarios en formato legible
 */
-CREATE VIEW VerTodosLosFinanciadores AS SELECT
+CREATE TABLE VerTodosLosFinanciadores AS
+SELECT
 	Financiador.Nombre,
 	Region.Nombre AS RegionDeCreacion,
 	Financiador.FechaDeCreacion,
@@ -45,15 +50,10 @@ CREATE VIEW VerTodosLosFinanciadores AS SELECT
 	Financiador.Vision,
 	Financiador.Valores
 FROM
-	Financiador, Region, TipoDePersona, 
+	Financiador, Region, TipoDePersona,
 	TipoDeEmpresa, TipoDePerfil
 WHERE
 	Region.ID=Financiador.RegionDeCreacion AND
 	TipoDePersona.ID=Financiador.TipoDePersona AND
 	TipoDeEmpresa.ID=Financiador.TipoDeEmpresa AND
 	TipoDePerfil.ID=Financiador.Perfil;
-
-INSERT INTO Financiador (ID,Nombre,FechaDeCreacion,RegionDeCreacion,Direccion,TipoDePersona,TipoDeEmpresa,Perfil,RUTdeEmpresa,RUTdeRepresentante) VALUES
-	(1,'ANID','2005-06-23',7,'N/A',1,1,3,'60.915.000-9','14.131.587-0'),
-	(2,'CORFO','2005-06-23',7,'N/A',1,1,3,'60.706.000-2','78.i39.379-3'),
-	(3,'FondosGob','2005-06-23',7,'N/A',1,1,3,'60.801.000-9','60.801.000-9');

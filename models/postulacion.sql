@@ -18,17 +18,3 @@ CREATE TABLE Postulacion (
 	FOREIGN KEY (Instrumento) REFERENCES Instrumento(ID),
 	FOREIGN KEY (Resultado) REFERENCES Resultado(ID)
 );
-
-CREATE VIEW VerTodasLasPostulaciones AS SELECT
-	Postulacion.Beneficiario,
-	Postulacion.Proyecto,
-	Postulacion.Instrumento,
-	Resultado.Nombre AS Resultado,
-	Postulacion.MontoObtenido,
-	Postulacion.FechaDePostulacion,
-	Postulacion.FechaDeResultado,
-	Postulacion.Detalle
-FROM 
-	Postulacion, Resultado
-WHERE
-	Resultado.ID=Postulacion.Resultado;

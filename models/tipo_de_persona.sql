@@ -15,4 +15,5 @@ VALUES
 	(1,"JU","Juridica"),
 	(2,"NA","Natural");
 
-CREATE VIEW VerTiposDePersona AS SELECT Nombre FROM TipoDePersona;
+CREATE TABLE VerTiposDePersona AS
+SELECT Nombre FROM TipoDePersona;

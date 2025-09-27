@@ -17,4 +17,5 @@ VALUES
 	(5,"ORG","Organizacion"),
 	(6,"PER","Persona");
 
-CREATE VIEW VerTiposDePerfil AS SELECT Nombre FROM TipoDePerfil;
+CREATE TABLE VerTiposDePerfil AS
+SELECT Nombre FROM TipoDePerfil;

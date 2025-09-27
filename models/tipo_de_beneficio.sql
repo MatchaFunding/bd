@@ -22,4 +22,5 @@ VALUES
 	(11,"IAP","Investigación Aplicada"),
 	(12,"REC","Redes, Estrategia y Conocimiento");
 
-CREATE VIEW VerTiposDeBeneficio AS SELECT Nombre FROM TipoDeBeneficio;
+CREATE TABLE VerTiposDeBeneficio AS
+SELECT Nombre FROM TipoDeBeneficio;

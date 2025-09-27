@@ -15,4 +15,5 @@ VALUES
 	(2,"MUJ","Mujer"),
 	(3,"NA","Otro");
 
-CREATE VIEW VerSexos AS SELECT Nombre FROM Sexo;
+CREATE TABLE VerSexos AS
+SELECT Nombre FROM Sexo;

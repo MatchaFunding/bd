@@ -11,7 +11,3 @@ CREATE TABLE Miembro (
 	FOREIGN KEY (Beneficiario) REFERENCES Beneficiario(ID),
 	FOREIGN KEY (Persona) REFERENCES Persona(ID)
 );
-
-CREATE VIEW VerMiembros AS SELECT 
-Persona, Beneficiario 
-FROM Miembro;

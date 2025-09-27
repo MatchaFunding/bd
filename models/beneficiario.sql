@@ -31,28 +31,3 @@ CREATE TABLE Beneficiario (
 	FOREIGN KEY (TipoDeEmpresa) REFERENCES TipoDeEmpresa(ID),
 	FOREIGN KEY (Perfil) REFERENCES TipoDePerfil(ID)
 );
-
-/*
-Vista que muestra los beneficiarios en formato legible
-*/
-CREATE VIEW VerTodosLosBeneficiarios AS SELECT
-	Beneficiario.Nombre,
-	Region.Nombre AS RegionDeCreacion,
-	Beneficiario.FechaDeCreacion,
-	Beneficiario.Direccion,
-	TipoDePersona.Nombre AS TipoDePersona,
-	TipoDeEmpresa.Nombre AS TipoDeEmpresa,
-	TipoDePerfil.Nombre AS Perfil,
-	Beneficiario.RUTdeEmpresa,
-	Beneficiario.RUTdeRepresentante,
-	Beneficiario.Mision,
-	Beneficiario.Vision,
-	Beneficiario.Valores
-FROM
-	Beneficiario, Region, TipoDePersona, 
-	TipoDeEmpresa, TipoDePerfil
-WHERE
-	Region.ID=Beneficiario.RegionDeCreacion AND
-	TipoDePersona.ID=Beneficiario.TipoDePersona AND
-	TipoDeEmpresa.ID=Beneficiario.TipoDeEmpresa AND
-	TipoDePerfil.ID=Beneficiario.Perfil;

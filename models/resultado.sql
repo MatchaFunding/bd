@@ -13,3 +13,6 @@ VALUES
 	(1,"ADJ","Adjudicado"),
 	(2,"REC","Rechazado"),
 	(3,"PEN","Pendiente");
+
+CREATE TABLE VerResultados AS
+SELECT Nombre FROM Resultado;

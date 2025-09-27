@@ -15,4 +15,5 @@ VALUES
 	(3,"SPA","Sociedad por Acciones"),
 	(4,"EIRL","Empresa Individual de Responsabilidad Limitada");
 
-CREATE VIEW VerTiposDeEmpresa AS SELECT Nombre FROM TipoDeEmpresa;
+CREATE TABLE VerTiposDeEmpresa AS
+SELECT Nombre FROM TipoDeEmpresa;

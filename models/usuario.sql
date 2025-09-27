@@ -11,11 +11,3 @@ CREATE TABLE Usuario (
 	PRIMARY KEY (ID),
 	FOREIGN KEY (Persona) REFERENCES Persona(ID)
 );
-
-CREATE VIEW VerTodosLosUsuarios AS SELECT
-	Usuario.NombreDeUsuario,
-	Usuario.Contrasena,
-	Usuario.Correo,
-	Usuario.Persona
-FROM
-	Usuario;
