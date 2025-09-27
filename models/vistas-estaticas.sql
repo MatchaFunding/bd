@@ -8,7 +8,7 @@ de la IA con los datos de los usuarios.
 /*
 Vista que muestra los beneficiarios en formato legible
 */
-CREATE TABLE VerTodosLosBeneficiarios AS
+CREATE TABLE VerTodosLosBeneficiarios ENGINE = MEMORY
 SELECT
 	Beneficiario.Nombre,
 	Region.Nombre AS RegionDeCreacion,
@@ -34,7 +34,7 @@ WHERE
 /*
 Vista que muestra los colaboradores en formato legible
 */
-CREATE TABLE VerTodosLosColaboradores AS
+CREATE TABLE VerTodosLosColaboradores ENGINE = MEMORY
 SELECT
 	Persona.Nombre AS Persona,
 	Proyecto.Titulo AS Proyecto
@@ -47,7 +47,7 @@ WHERE
 /*
 Vista que muestra los consorcios en formato legible
 */
-CREATE TABLE VerTodosLosConsorcios AS
+CREATE TABLE VerTodosLosConsorcios ENGINE = MEMORY
 SELECT
 	Beneficiario.Nombre AS PrimerBeneficiario,
 	Beneficiario.Nombre AS SegundoBeneficiario
@@ -60,7 +60,7 @@ WHERE
 /*
 Vista que muestra los instrumentos en formato legible
 */
-CREATE TABLE VerTodosLosInstrumentos AS
+CREATE TABLE VerTodosLosInstrumentos ENGINE = MEMORY
 SELECT
 	Instrumento.Titulo,
 	Financiador.Nombre AS Financiador,
@@ -94,7 +94,7 @@ WHERE
 /*
 Vista que muestra los miembros en formato legible
 */
-CREATE TABLE VerTodosLosMiembros AS
+CREATE TABLE VerTodosLosMiembros ENGINE = MEMORY
 SELECT
 	Persona.Nombre AS Persona,
 	Beneficiario.Nombre AS Beneficiario
@@ -107,7 +107,8 @@ WHERE
 /*
 Vista que muestra las personas en formato legible
 */
-CREATE TABLE VerTodasLasPersonas AS SELECT
+CREATE TABLE VerTodasLasPersonas ENGINE = MEMORY
+SELECT
 	Persona.Nombre,
 	Persona.Apellido,
 	Sexo.Nombre AS Sexo,
@@ -124,7 +125,8 @@ WHERE
 /*
 Vista que muestra las postulaciones en formato legible
 */
-CREATE TABLE VerTodasLasPostulaciones AS SELECT
+CREATE TABLE VerTodasLasPostulaciones ENGINE = MEMORY
+SELECT
 	Beneficiario.Nombre AS Beneficiario,
 	Proyecto.Titulo AS Proyecto,
 	Instrumento.Titulo AS Instrumento,
@@ -148,7 +150,8 @@ WHERE
 /*
 Vista que muestra los proyectos en formato legible
 */
-CREATE TABLE VerTodosLosProyectos AS SELECT
+CREATE TABLE VerTodosLosProyectos ENGINE = MEMORY
+SELECT
 	Beneficiario.Nombre AS Beneficiario,
 	Proyecto.Titulo,
 	Proyecto.Descripcion,

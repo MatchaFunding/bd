@@ -7,6 +7,7 @@ CREATE TABLE EstadoDeFondo (
 	Nombre varchar(40) NOT NULL,
 	PRIMARY KEY (ID)
 );
+
 INSERT INTO EstadoDeFondo (ID, Codigo, Nombre)
 VALUES
 	(1,"PRX","Proximo"),

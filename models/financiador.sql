@@ -30,7 +30,8 @@ CREATE TABLE Financiador (
 
 INSERT INTO Financiador (ID,Nombre,FechaDeCreacion,RegionDeCreacion,Direccion,TipoDePersona,TipoDeEmpresa,Perfil,RUTdeEmpresa,RUTdeRepresentante) VALUES
 	(1,'ANID','2005-06-23',7,'N/A',1,1,3,'60.915.000-9','14.131.587-0'),
-	(2,'CORFO','2005-06-23',7,'N/A',1,1,3,'60.706.000-2','78.i39.379-3');
+	(2,'CORFO','2005-06-23',7,'N/A',1,1,3,'60.706.000-2','78.139.379-3'),
+	(3,'Nacionales','2005-06-23',7,'N/A',1,1,3,'60.706.000-2','78.139.379-3');
 
 /*
 Vista que muestra los beneficiarios en formato legible
