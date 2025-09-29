@@ -17,7 +17,7 @@ CREATE TABLE Instrumento (
 	FechaDeApertura date NOT NULL,
 	FechaDeCierre date NOT NULL,
 	FechaDeResultado date NULL,
-	DuracionEnMeses int NOT NULL,
+	DuracionEnMeses int NULL,
 	Beneficios varchar(1000) NULL,
 	Requisitos varchar(1000) NULL,
 	MontoMinimo int NOT NULL,
