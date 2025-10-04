@@ -1,4 +1,3 @@
-# Junta todos los archivos SQL y los combina en un unico archivo
 cat \
 ../models/crear_base_de_datos.sql \
 ../models/region.sql \

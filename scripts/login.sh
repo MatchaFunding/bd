@@ -1,2 +1,1 @@
-# Ingresa a la base de datos como super usuario
-mariadb MatchaFundingMySQL
+sudo mariadb MatchaFundingMySQL
