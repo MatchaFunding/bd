@@ -17,8 +17,6 @@ char *EscaparComillas(const char *input) {
 			extra++;
 	}
 	char *result = malloc(len + extra + 1);
-	if (!result) 
-		return NULL;
 	size_t j = 0;
 	for (size_t i = 0; i < len; i++) {
 		if (input[i] == '"') {
@@ -42,7 +40,7 @@ char *EjecutarQueryAJSON(const char *query) {
 		fprintf(stderr, "Couldn't initialize database\n");
 		return NULL;
 	}
-	if (mysql_real_connect(con, HOST, USER, NULL, DB, 0, NULL, 0) == NULL) {
+	if (mysql_real_connect(con, MYSQL_HOST, MYSQL_USER, NULL, DB, 0, NULL, 0) == NULL) {
 		fprintf(stderr, "Couldn't connect to database\n");
 		return NULL;
 	}
@@ -88,7 +86,7 @@ char *ParsearResultadoAJSON(MYSQL_RES *result) {
 				strncat(json, row[i] ? row[i] : "NULL", total_size - strlen(json) - 5);
 			else {
 				strcat(json, "\"");
-				char *my_row = EscaparComillas(row[i]);
+				char *my_row = EscaparComillas(row[i]); // Se escapan las comillas
 				strncat(json, my_row ? my_row : "NULL", total_size - strlen(json) - 5);
 				strcat(json, "\"");
 			}

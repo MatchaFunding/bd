@@ -4,7 +4,7 @@
 #include "utils.h"
 
 HTTP_response VerTodosLosInstrumentos(const char *url);
-HTTP_response ObtenerInstrumento(const char *id);
+HTTP_response VerSoloUnInstrumento(const char *id);
 HTTP_response CrearInstrumento(const char *body);
 HTTP_response CambiarInstrumento(const char *id, const char *body);
 HTTP_response BorrarInstrumento(const char *id);

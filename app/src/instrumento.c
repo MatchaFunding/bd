@@ -13,9 +13,9 @@ HTTP_response VerTodosLosInstrumentos(const char *url) {
 }
 
 /*
-Muestra un instrumento en base a su identificador
+Muestra solo un instrumento en base a su identificador
 */
-HTTP_response ObtenerInstrumento(const char *id) {
+HTTP_response VerSoloUnInstrumento(const char *id) {
 	if (id == NULL) {
 		return (HTTP_response){
 			.body = MensajeSimple("No id provided"),
@@ -86,12 +86,10 @@ HTTP_response URLInstrumento(const char *url, const char *method, const char *bo
 		id += strlen("/instrumentos/");
 	}
 	if (ValidarMetodo(method, "GET")) {
-		if (id == NULL){
+		if (id == NULL)
 			return VerTodosLosInstrumentos(url);
-		}
-		else {
-			return ObtenerInstrumento(id);
-		}
+		else
+			return VerSoloUnInstrumento(id);
 	}
 	if (ValidarMetodo(method, "POST")) {
 		return CrearInstrumento(body);

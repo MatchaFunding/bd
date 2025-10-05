@@ -2,9 +2,8 @@
 #define QUERY_H
 #include <mysql/mysql.h>
 
-#define PORT 8080
-#define HOST "localhost"
-#define USER "root"
+#define MYSQL_HOST "localhost"
+#define MYSQL_USER "root"
 #define DB "MatchaFundingMySQL"
 
 char *EjecutarQueryAJSON(const char *query);
