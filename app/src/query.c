@@ -7,14 +7,14 @@
 /*
 Funcion que escapa todas las ocurrencias de comillas dobles en un string
 */
-char *escape_quotes(const char *input) {
+char *EscaparComillas(const char *input) {
 	if (!input) 
 		return NULL;
 	size_t len = strlen(input);
 	size_t extra = 0;
 	for (size_t i = 0; i < len; i++) {
-	if (input[i] == '"')
-		extra++;
+		if (input[i] == '"')
+			extra++;
 	}
 	char *result = malloc(len + extra + 1);
 	if (!result) 
@@ -36,7 +36,7 @@ char *escape_quotes(const char *input) {
 /*
 Realiza la query a la base de datos MySQL y devuelve la respuesta en formato JSON
 */
-char *execute_query_to_json(const char *query) {
+char *ExecuteQueryToJSON(const char *query) {
 	MYSQL *con = mysql_init(NULL);
 	if (con == NULL) {
 		fprintf(stderr, "Couldn't initialize database\n");
@@ -55,7 +55,7 @@ char *execute_query_to_json(const char *query) {
 		fprintf(stderr, "No results from query\n");
 		return NULL;
 	}
-	char *json = parse_result_to_json(result);
+	char *json = ParseResultToJSON(result);
 	mysql_free_result(result);
 	mysql_close(con);
 	return json;
@@ -64,17 +64,17 @@ char *execute_query_to_json(const char *query) {
 /*
 Toma la respuesta de la base de datos MySQL y la transforma en un arreglo JSON
 */
-char *parse_result_to_json(MYSQL_RES *result) {
+char *ParseResultToJSON(MYSQL_RES *result) {
 	int num_fields = mysql_num_fields(result);
 	int num_rows = mysql_num_rows(result);
 	int curr_row = 0;
-    	int total_size = num_rows * (2 + num_fields * 256) + num_rows - 1 + 3;
+	int total_size = num_rows * (2 + num_fields * 256) + num_rows - 1 + 3;
 	char *json = (char *)malloc(total_size);
-    	json[0] = '\0';
+	json[0] = '\0';
 	if (num_rows == 0) {
 		strcat(json, "[]");
 		return json;
-    	}
+	}
 	MYSQL_ROW row;
 	strcat(json, "[");
 	while ((row = mysql_fetch_row(result))) {
@@ -88,7 +88,7 @@ char *parse_result_to_json(MYSQL_RES *result) {
 				strncat(json, row[i] ? row[i] : "NULL", total_size - strlen(json) - 5);
 			else {
 				strcat(json, "\"");
-				char *my_row = escape_quotes(row[i]);
+				char *my_row = EscaparComillas(row[i]);
 				strncat(json, my_row ? my_row : "NULL", total_size - strlen(json) - 5);
 				strcat(json, "\"");
 			}

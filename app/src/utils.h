@@ -19,12 +19,12 @@ typedef struct {
 	HTTP_status status;
 } HTTP_response;
 
-char *simple_message(const char *message_str);
+char *SimpleMessage(const char *message_str);
 
-HTTP_response validate_result(char *result);
+HTTP_response ValidateResult(char *result);
 
-bool validate_method(const char *method, char *valid_method);
+bool ValidateMethod(const char *method, char *valid_method);
 
-bool validate_route(const char *url, char *route);
+bool ValidateRoute(const char *url, char *route);
 
 #endif
