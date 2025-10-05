@@ -34,7 +34,7 @@ CREATE TABLE Beneficiario (
 /*
 Vista que muestra los beneficiarios en formato legible
 */
-CREATE TABLE VerTodosLosBeneficiarios ENGINE = MEMORY
+CREATE VIEW VerTodosLosBeneficiarios AS
 SELECT
 	Beneficiario.Nombre,
 	Region.Nombre AS RegionDeCreacion,

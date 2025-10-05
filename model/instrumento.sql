@@ -40,7 +40,7 @@ CREATE TABLE Instrumento (
 /*
 Vista que muestra los instrumentos en formato legible
 */
-CREATE TABLE VerTodosLosInstrumentos ENGINE = MEMORY
+CREATE VIEW VerTodosLosInstrumentos AS
 SELECT
 	Instrumento.ID,
 	Instrumento.Titulo,

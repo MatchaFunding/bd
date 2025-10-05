@@ -14,7 +14,7 @@ CREATE TABLE Miembro (
 /*
 Vista que muestra los miembros en formato legible
 */
-CREATE TABLE VerTodosLosMiembros ENGINE = MEMORY
+CREATE VIEW VerTodosLosMiembros AS
 SELECT
 	Persona.Nombre AS Persona,
 	Beneficiario.Nombre AS Beneficiario

@@ -21,7 +21,7 @@ CREATE TABLE Postulacion (
 /*
 Vista que muestra las postulaciones en formato legible
 */
-CREATE TABLE VerTodasLasPostulaciones ENGINE = MEMORY
+CREATE VIEW VerTodasLasPostulaciones AS
 SELECT
 	Beneficiario.Nombre AS Beneficiario,
 	Proyecto.Titulo AS Proyecto,

@@ -14,7 +14,7 @@ CREATE TABLE Consorcio (
 /*
 Vista que muestra los consorcios en formato legible
 */
-CREATE TABLE VerTodosLosConsorcios ENGINE = MEMORY
+CREATE VIEW VerTodosLosConsorcios AS
 SELECT
 	Beneficiario.Nombre AS PrimerBeneficiario,
 	Beneficiario.Nombre AS SegundoBeneficiario

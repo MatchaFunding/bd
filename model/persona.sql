@@ -22,7 +22,7 @@ CREATE TABLE Persona (
 /*
 Vista que muestra las personas en formato legible
 */
-CREATE TABLE VerTodasLasPersonas ENGINE = MEMORY
+CREATE VIEW VerTodasLasPersonas AS
 SELECT
 	Persona.Nombre,
 	Persona.Apellido,

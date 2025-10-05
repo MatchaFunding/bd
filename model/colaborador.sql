@@ -13,7 +13,7 @@ CREATE TABLE Colaborador (
 /*
 Vista que muestra los colaboradores en formato legible
 */
-CREATE TABLE VerTodosLosColaboradores ENGINE = MEMORY
+CREATE VIEW VerTodosLosColaboradores AS
 SELECT
 	Persona.Nombre AS Persona,
 	Proyecto.Titulo AS Proyecto

@@ -26,7 +26,7 @@ CREATE TABLE Proyecto (
 /*
 Vista que muestra los proyectos en formato legible
 */
-CREATE TABLE VerTodosLosProyectos ENGINE = MEMORY
+CREATE VIEW VerTodosLosProyectos AS
 SELECT
 	Beneficiario.Nombre AS Beneficiario,
 	Proyecto.Titulo,
