@@ -11,3 +11,16 @@ CREATE TABLE Consorcio (
 	FOREIGN KEY (PrimerBeneficiario) REFERENCES Beneficiario(ID),
 	FOREIGN KEY (SegundoBeneficiario) REFERENCES Beneficiario(ID)
 );
+/*
+Vista que muestra los consorcios en formato legible
+*/
+CREATE TABLE VerTodosLosConsorcios ENGINE = MEMORY
+SELECT
+	Beneficiario.Nombre AS PrimerBeneficiario,
+	Beneficiario.Nombre AS SegundoBeneficiario
+FROM
+	Consorcio, Beneficiario
+WHERE
+	Beneficiario.ID=Consorcio.PrimerBeneficiario AND
+	Beneficiario.ID=Consorcio.SegundoBeneficiario;
+

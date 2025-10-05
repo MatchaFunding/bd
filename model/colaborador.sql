@@ -10,3 +10,16 @@ CREATE TABLE Colaborador (
 	FOREIGN KEY (Persona) REFERENCES Persona(ID),
 	FOREIGN KEY (Proyecto) REFERENCES Proyecto(ID)
 );
+/*
+Vista que muestra los colaboradores en formato legible
+*/
+CREATE TABLE VerTodosLosColaboradores ENGINE = MEMORY
+SELECT
+	Persona.Nombre AS Persona,
+	Proyecto.Titulo AS Proyecto
+FROM
+	Colaborador, Persona, Proyecto
+WHERE
+	Persona.ID=Colaborador.Persona AND
+	Proyecto.ID=Colaborador.Proyecto;
+

@@ -11,3 +11,16 @@ CREATE TABLE Miembro (
 	FOREIGN KEY (Beneficiario) REFERENCES Beneficiario(ID),
 	FOREIGN KEY (Persona) REFERENCES Persona(ID)
 );
+/*
+Vista que muestra los miembros en formato legible
+*/
+CREATE TABLE VerTodosLosMiembros ENGINE = MEMORY
+SELECT
+	Persona.Nombre AS Persona,
+	Beneficiario.Nombre AS Beneficiario
+FROM
+	Miembro, Persona, Beneficiario
+WHERE
+	Persona.ID=Miembro.Persona AND
+	Beneficiario.ID=Miembro.Beneficiario;
+

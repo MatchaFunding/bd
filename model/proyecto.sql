@@ -23,3 +23,23 @@ CREATE TABLE Proyecto (
 	FOREIGN KEY (Beneficiario) REFERENCES Beneficiario(ID),
 	FOREIGN KEY (Alcance) REFERENCES Region(ID)
 );
+/*
+Vista que muestra los proyectos en formato legible
+*/
+CREATE TABLE VerTodosLosProyectos ENGINE = MEMORY
+SELECT
+	Beneficiario.Nombre AS Beneficiario,
+	Proyecto.Titulo,
+	Proyecto.Descripcion,
+	Proyecto.DuracionEnMesesMinimo,
+	Proyecto.DuracionEnMesesMaximo,
+	Region.Nombre AS Alcance,
+	Proyecto.Area,
+	Proyecto.Problema,
+	Proyecto.Publico
+FROM
+	Proyecto, Beneficiario, Region
+WHERE
+	Beneficiario.ID=Proyecto.Beneficiario AND
+	Region.ID=Proyecto.Alcance;
+

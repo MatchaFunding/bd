@@ -37,3 +37,38 @@ CREATE TABLE Instrumento (
 	FOREIGN KEY (TipoDePerfil) REFERENCES TipoDePerfil(ID),
 	FOREIGN KEY (Financiador) REFERENCES Financiador(ID)
 );
+/*
+Vista que muestra los instrumentos en formato legible
+*/
+CREATE TABLE VerTodosLosInstrumentos ENGINE = MEMORY
+SELECT
+	Instrumento.ID,
+	Instrumento.Titulo,
+	Financiador.Nombre AS Financiador,
+	Region.Nombre AS Alcance,
+	Instrumento.Descripcion,
+	Instrumento.FechaDeApertura,
+	Instrumento.FechaDeCierre,
+	Instrumento.DuracionEnMeses,
+	Instrumento.Beneficios,
+	Instrumento.Requisitos,
+	Instrumento.MontoMinimo,
+	Instrumento.MontoMaximo,
+	EstadoDeFondo.Nombre AS Estado,
+	TipoDeBeneficio.Nombre AS TipoDeBeneficio,
+	TipoDePerfil.Nombre AS TipoDePerfil,
+	Instrumento.ObjetivoGeneral,
+	Instrumento.ObjetivoEspecifico,
+	Instrumento.ResultadoEsperado,
+	Instrumento.EnlaceDelDetalle,
+	Instrumento.EnlaceDeLaFoto
+FROM
+	Instrumento, Financiador, Region,
+	EstadoDeFondo, TipoDeBeneficio, TipoDePerfil
+WHERE
+	Financiador.ID=Instrumento.Financiador AND
+	Region.ID=Instrumento.Alcance AND
+	EstadoDeFondo.ID=Instrumento.Estado AND
+	TipoDeBeneficio.ID=Instrumento.TipoDeBeneficio AND
+	TipoDePerfil.ID=Instrumento.TipoDePerfil;
+

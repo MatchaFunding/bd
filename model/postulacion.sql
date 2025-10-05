@@ -18,3 +18,28 @@ CREATE TABLE Postulacion (
 	FOREIGN KEY (Instrumento) REFERENCES Instrumento(ID),
 	FOREIGN KEY (Resultado) REFERENCES Resultado(ID)
 );
+/*
+Vista que muestra las postulaciones en formato legible
+*/
+CREATE TABLE VerTodasLasPostulaciones ENGINE = MEMORY
+SELECT
+	Beneficiario.Nombre AS Beneficiario,
+	Proyecto.Titulo AS Proyecto,
+	Instrumento.Titulo AS Instrumento,
+	Resultado.Nombre AS Resultado,
+	Postulacion.MontoObtenido,
+	Postulacion.FechaDePostulacion,
+	Postulacion.FechaDeResultado,
+	Postulacion.Detalle
+FROM
+	Postulacion,
+	Beneficiario,
+	Proyecto,
+	Instrumento,
+	Resultado
+WHERE
+	Beneficiario.ID=Postulacion.Beneficiario AND
+	Proyecto.ID=Postulacion.Proyecto AND
+	Instrumento.ID=Postulacion.Instrumento AND
+	Resultado.ID=Postulacion.Resultado;
+
