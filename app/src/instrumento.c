@@ -77,8 +77,7 @@ HTTP_response BorrarInstrumento(const char *id) {
 }
 
 /*
-Gestiona y enruta las llamdas hacia los instrumentos dependiendo del metodo
-que se esta invocando hacia la API
+Gestiona y enruta las llamdas hacia los instrumentos
 */
 HTTP_response URLInstrumento(const char *url, const char *method, const char *body){
 	char *id = strstr(url, "/instrumentos/");

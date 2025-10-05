@@ -1,5 +1,6 @@
 #include "rest.h"
 #include "instrumento.h"
+#include "beneficiario.h"
 #include <setjmp.h>
 #include "handler.h"
 
@@ -31,6 +32,9 @@ enum MHD_Result GestorPrincipal(void *cls, struct MHD_Connection *connection,  c
 		}
 		else if (ValidarRuta(url_str, "/instrumentos")) {
 			response_api = URLInstrumento(url_str, method_str, upload_data);
+		}
+		else if (ValidarRuta(url_str, "/beneficiarios")) {
+			response_api = URLBeneficiario(url_str, method_str, upload_data);
 		}
 		else {
 			response_api = (HTTP_response){
