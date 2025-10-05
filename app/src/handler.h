@@ -5,7 +5,7 @@ extern jmp_buf exceptionBuffer;
 #define TRY if (setjmp(exceptionBuffer) == 0)
 #define CATCH else
 
-void LogAPI(const char *url, const char *method);
-enum MHD_Result DefaultHandler(void *cls, struct MHD_Connection *connection, const char *url, const char *method, const char *version, const char *upload_data, size_t *upload_data_size, void **con_cls); 
+void LoguearAPI(const char *url, const char *method);
+enum MHD_Result GestorPrincipal(void *cls, struct MHD_Connection *connection, const char *url, const char *method, const char *version, const char *upload_data, size_t *upload_data_size, void **con_cls); 
 
 #endif

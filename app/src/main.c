@@ -10,7 +10,7 @@
 int main() {
 	printf("Levantando Back-End de MatchaFunding...\n");
 	struct MHD_Daemon *daemon;
-	daemon = MHD_start_daemon(MHD_USE_THREAD_PER_CONNECTION, PORT, NULL, NULL, &DefaultHandler, NULL, MHD_OPTION_END);
+	daemon = MHD_start_daemon(MHD_USE_THREAD_PER_CONNECTION, PORT, NULL, NULL, &GestorPrincipal, NULL, MHD_OPTION_END);
 	while (1) {
 		sleep(1);
 	}

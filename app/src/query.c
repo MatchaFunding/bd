@@ -36,7 +36,7 @@ char *EscaparComillas(const char *input) {
 /*
 Realiza la query a la base de datos MySQL y devuelve la respuesta en formato JSON
 */
-char *ExecuteQueryToJSON(const char *query) {
+char *EjecutarQueryAJSON(const char *query) {
 	MYSQL *con = mysql_init(NULL);
 	if (con == NULL) {
 		fprintf(stderr, "Couldn't initialize database\n");
@@ -55,7 +55,7 @@ char *ExecuteQueryToJSON(const char *query) {
 		fprintf(stderr, "No results from query\n");
 		return NULL;
 	}
-	char *json = ParseResultToJSON(result);
+	char *json = ParsearResultadoAJSON(result);
 	mysql_free_result(result);
 	mysql_close(con);
 	return json;
@@ -64,7 +64,7 @@ char *ExecuteQueryToJSON(const char *query) {
 /*
 Toma la respuesta de la base de datos MySQL y la transforma en un arreglo JSON
 */
-char *ParseResultToJSON(MYSQL_RES *result) {
+char *ParsearResultadoAJSON(MYSQL_RES *result) {
 	int num_fields = mysql_num_fields(result);
 	int num_rows = mysql_num_rows(result);
 	int curr_row = 0;

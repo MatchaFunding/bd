@@ -7,7 +7,7 @@
 #define USER "root"
 #define DB "MatchaFundingMySQL"
 
-char *ExecuteQueryToJSON(const char *query);
-char *ParseResultToJSON(MYSQL_RES *result);
+char *EjecutarQueryAJSON(const char *query);
+char *ParsearResultadoAJSON(MYSQL_RES *result);
 
 #endif

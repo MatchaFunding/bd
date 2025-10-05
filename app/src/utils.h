@@ -19,12 +19,9 @@ typedef struct {
 	HTTP_status status;
 } HTTP_response;
 
-char *SimpleMessage(const char *message_str);
-
-HTTP_response ValidateResult(char *result);
-
-bool ValidateMethod(const char *method, char *valid_method);
-
-bool ValidateRoute(const char *url, char *route);
+char *MensajeSimple(const char *message_str);
+HTTP_response ValidarResultado(char *result);
+bool ValidarMetodo(const char *method, char *valid_method);
+bool ValidarRuta(const char *url, char *route);
 
 #endif

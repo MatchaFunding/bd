@@ -8,8 +8,8 @@ Muestra absolutamente todos los instrumentos existentes
 */
 HTTP_response VerTodosLosInstrumentos(const char *url) {
 	const char *query = "SELECT * FROM VerTodosLosInstrumentos";
-	char *result = ExecuteQueryToJSON(query);
-	return ValidateResult(result);
+	char *result = EjecutarQueryAJSON(query);
+	return ValidarResultado(result);
 }
 
 /*
@@ -18,14 +18,14 @@ Muestra un instrumento en base a su identificador
 HTTP_response ObtenerInstrumento(const char *id) {
 	if (id == NULL) {
 		return (HTTP_response){
-			.body = SimpleMessage("No id provided"),
+			.body = MensajeSimple("No id provided"),
 			.status = BAD_REQUEST
 		};
 	}
 	char query[64];
 	snprintf(query, sizeof(query), "SELECT * FROM VerTodosLosInstrumentos WHERE ID = %s", id);
-	char *result = ExecuteQueryToJSON(query);
-	return ValidateResult(result);
+	char *result = EjecutarQueryAJSON(query);
+	return ValidarResultado(result);
 }
 
 /*
@@ -34,14 +34,14 @@ Crea un instrumento a partir de los datos entregados en el body
 HTTP_response CrearInstrumento(const char *body) {
 	if (body == NULL) {
 		return (HTTP_response){
-			.body = SimpleMessage("No body provided"),
+			.body = MensajeSimple("No body provided"),
 			.status = BAD_REQUEST
 		};
 	}
 	char query[256];
 	snprintf(query, sizeof(query),"INSERT INTO Instrumento VALUES ('%s', '%s')", "name","email");
-	char *result = ExecuteQueryToJSON(query);
-	return ValidateResult(result);
+	char *result = EjecutarQueryAJSON(query);
+	return ValidarResultado(result);
 }
 
 /*
@@ -50,20 +50,20 @@ Modifica un instrumento a partir de los datos entregados en el body
 HTTP_response CambiarInstrumento(const char *id, const char *body) {
 	if (id == NULL) {
 		return (HTTP_response){
-			.body = SimpleMessage("No id provided"),
+			.body = MensajeSimple("No id provided"),
 			.status = BAD_REQUEST
 		};
 	}
 	if (body == NULL) {
 		return (HTTP_response){
-			.body = SimpleMessage("No body provided"),
+			.body = MensajeSimple("No body provided"),
 			.status = BAD_REQUEST
 		};
 	}
 	char query[256];
 	snprintf(query, sizeof(query),"UPDATE Instrumento SET name = '%s', email = '%s' WHERE id = %s", "name", "email", id);
-	char *result = ExecuteQueryToJSON(query);
-	return ValidateResult(result);
+	char *result = EjecutarQueryAJSON(query);
+	return ValidarResultado(result);
 }
 
 /*
@@ -72,8 +72,8 @@ Borra un instrumento a partir de su identificador
 HTTP_response BorrarInstrumento(const char *id) {
 	char query[64];
 	snprintf(query, sizeof(query), "DELETE FROM Instrumento WHERE id = %s", id);
-	char *result = ExecuteQueryToJSON(query);
-	return ValidateResult(result);
+	char *result = EjecutarQueryAJSON(query);
+	return ValidarResultado(result);
 }
 
 /*
@@ -85,7 +85,7 @@ HTTP_response URLInstrumento(const char *url, const char *method, const char *bo
 	if (id != NULL) {
 		id += strlen("/instrumentos/");
 	}
-	if (ValidateMethod(method, "GET")) {
+	if (ValidarMetodo(method, "GET")) {
 		if (id == NULL){
 			return VerTodosLosInstrumentos(url);
 		}
@@ -93,17 +93,17 @@ HTTP_response URLInstrumento(const char *url, const char *method, const char *bo
 			return ObtenerInstrumento(id);
 		}
 	}
-	if (ValidateMethod(method, "POST")) {
+	if (ValidarMetodo(method, "POST")) {
 		return CrearInstrumento(body);
 	}
-	if (ValidateMethod(method, "PUT")) {
+	if (ValidarMetodo(method, "PUT")) {
 		return CambiarInstrumento(id, body);
 	} 
-	if (ValidateMethod(method, "DELETE")) {
+	if (ValidarMetodo(method, "DELETE")) {
 		return BorrarInstrumento(id);
 	}
 	return (HTTP_response){
-		.body = SimpleMessage("Invalid method"),
+		.body = MensajeSimple("Invalid method"),
 		.status = NOT_IMPLEMENTED
 	};
 }
