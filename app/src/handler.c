@@ -4,17 +4,17 @@
 #include <setjmp.h>
 #include "handler.h"
 
-jmp_buf exceptionBuffer;
+jmp_buf ExceptionBuffer;
 
-/*
-Muestra por pantalla la request solicitada por el cliente
-*/
+/* Muestra por pantalla la request solicitada por el cliente */
 void LoguearAPI(const char *url, const char *method) {
 	printf("[%s] %s\n", method, url);
 }
 
 /*
-Rutea las llamadas desde el cliente hacia el controlador correspondiente
+Se usa la funcion "GestorPrincipal" para redirigir las llamadas en
+base al tipo de objeto que se esta invocando.
+(es similar a los Routers en FastAPI)
 */
 enum MHD_Result GestorPrincipal(void *cls, struct MHD_Connection *connection,  const char *url, const char *method, const char *version, const char *upload_data, size_t *upload_data_size, void **con_cls) {
 	char *url_str = (char *)url;
@@ -23,17 +23,17 @@ enum MHD_Result GestorPrincipal(void *cls, struct MHD_Connection *connection,  c
 	HTTP_response response_api;
 	LoguearAPI(url_str, method_str);
 	int ret;
-	if (setjmp(exceptionBuffer) == 0) {
+	if (setjmp(ExceptionBuffer) == 0) {
 		if (strcmp(url_str, "/") == 0) {
 			response_api = (HTTP_response){
 				.body = MensajeSimple("BackEnd activo!"),
 				.status = OK
 			};
 		}
-		else if (ValidarRuta(url_str, "/instrumentos")) {
+		else if (EsRuta(url_str, "/instrumentos")) {
 			response_api = URLInstrumento(url_str, method_str, upload_data);
 		}
-		else if (ValidarRuta(url_str, "/beneficiarios")) {
+		else if (EsRuta(url_str, "/beneficiarios")) {
 			response_api = URLBeneficiario(url_str, method_str, upload_data);
 		}
 		else {

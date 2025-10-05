@@ -21,7 +21,7 @@ typedef struct {
 
 char *MensajeSimple(const char *message_str);
 HTTP_response ValidarResultado(char *result);
-bool ValidarMetodo(const char *method, char *valid_method);
-bool ValidarRuta(const char *url, char *route);
+bool EsMetodo(const char *method, char *valid_method);
+bool EsRuta(const char *url, char *route);
 
 #endif

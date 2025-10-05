@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include "utils.h"
 
+/* Envia un mensaje simple en formato HTTP */
 char *MensajeSimple(const char *message_str) {
 	char *formatted_message = NULL;
 	size_t formatted_message_size = strlen(message_str) + 20;
@@ -13,14 +14,17 @@ char *MensajeSimple(const char *message_str) {
 	return formatted_message;
 }
 
-bool ValidarRuta(const char *url, char *route) {
+/* Valida si la ruta existe y es valida */
+bool EsRuta(const char *url, char *route) {
 	return strstr(url, route) != NULL;
 }
 
-bool ValidarMetodo(const char *method, char *valid_method) {
+/* Valida si el metodo existe y es valido */
+bool EsMetodo(const char *method, char *valid_method) {
 	return strcmp(method, valid_method) == 0;
 }
 
+/* Valida el resultado y devuelve una respuesta HTTP */
 HTTP_response ValidarResultado(char *result) {
 	if (result == NULL) {
 		return (HTTP_response){
