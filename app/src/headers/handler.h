@@ -1,5 +1,6 @@
 #ifndef HANDLER_H
 #define HANDLER_H
+
 #include <setjmp.h>
 
 void LoguearAPI(const char *url, const char *method);

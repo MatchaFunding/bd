@@ -5,7 +5,7 @@
 #include "../headers/cache.h"
 #include "../headers/instrumento.h"
 
-/* Gestiona y enruta las llamdas hacia los instrumentos */
+/* Gestiona y enruta las llamadas hacia los instrumentos */
 HTTP_response URLInstrumento(const char *url, const char *method, const char *body){
 	char *id = strstr(url, "/instrumentos/");
 	if (id != NULL) {

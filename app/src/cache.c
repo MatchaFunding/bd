@@ -5,7 +5,7 @@
 #include <hiredis/hiredis.h>
 #include "headers/cache.h"
 
-/* Se intenta conectar con el diccionario en memoria */
+/* Se intenta conectar con el diccionario de cache en memoria */
 redisContext *ConexionDiccionario() {
 	redisContext *conn = redisConnect("127.0.0.1", 6379);
 	if (conn->err) {
@@ -15,7 +15,7 @@ redisContext *ConexionDiccionario() {
 	return conn;
 }
 
-/* Buscar un valor en el diccionario de memoria */
+/* Buscar un valor en el diccionario de cache en memoria */
 char* BuscarValorEnDiccionario(const char *key) {
 	char *res = NULL;
 	redisContext *conn = ConexionDiccionario();
@@ -32,7 +32,7 @@ char* BuscarValorEnDiccionario(const char *key) {
 	return res;
 }
 
-/* Guarda un valor en el diccionario de memoria */
+/* Guarda un valor en el diccionario de cache en memoria */
 void GuardarValorEnDiccionario(const char *key, const char *value) {
 	redisContext *conn = ConexionDiccionario();
 	if (conn) {
