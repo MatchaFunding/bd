@@ -1,8 +1,9 @@
+#include "headers/utils.h"
 #include <microhttpd.h>
-#include "utils.h"
 #include <setjmp.h>
 #include "headers/handler.h"
 #include "headers/instrumento.h"
+#include "headers/sexo.h"
 
 jmp_buf ExceptionBuffer;
 
@@ -22,19 +23,31 @@ struct MHD_Response *CrearRespuestaHTTP(const char *message) {
 	return response;
 }
 
-/*
-Se usa la funcion "GestorPrincipal" para redirigir las
+/* Se usa la funcion "GestorPrincipal" para redirigir las
 llamadas en base al tipo de objeto que se esta invocando
 
-(es similar a los Routers en FastAPI)
-*/
+(es similar a los Routers en FastAPI) */
 enum MHD_Result GestorPrincipal(void *cls, struct MHD_Connection *connection, const char *url, const char *method, const char *version, const char *upload_data, size_t *upload_data_size, void **con_cls) {
 	char *url_str = (char *)url;
 	char *method_str = (char *)method;
 	struct MHD_Response *response;
 	HTTP_response response_api;
-	LoguearAPI(url_str, method_str);
 	int ret;
+	
+	// Muestra la llamada por pantalla
+	LoguearAPI(url_str, method_str);
+
+	// Si se hace un POST request asignamos un buffer de memoria
+	if (strcmp(method, "POST") == 0) {
+		struct connection_info_struct *con_info = *con_cls;
+		if (*upload_data_size != 0) {
+			MHD_post_process(con_info->postprocessor, upload_data, *upload_data_size);
+			*upload_data_size = 0;
+			return MHD_YES;
+		}
+	}
+	
+	// Redirigimos al controlador especifico de cada objeto
 	if (setjmp(ExceptionBuffer) == 0) {
 		if (strcmp(url_str, "/") == 0) {
 			response_api = (HTTP_response){
@@ -45,22 +58,33 @@ enum MHD_Result GestorPrincipal(void *cls, struct MHD_Connection *connection, co
 		else if (EsRuta(url_str, "/instrumentos")) {
 			response_api = URLInstrumento(url_str, method_str, upload_data);
 		}
+		else if (EsRuta(url_str, "/sexos")) {
+			response_api = URLSexo(url_str, method_str, upload_data);
+		}
 		else {
 			response_api = (HTTP_response){
 				.body = MensajeSimple("Not found"),
 				.status = NOT_FOUND
 			};
 		}
-	} else {
+	}
+	
+	// La llamada realizada era invalida o no se pudo procesar
+	else {
 		response_api = (HTTP_response){
 			.body = MensajeSimple("Internal server error"),
 			.status = INTERNAL_SERVER_ERROR
 		};
 		printf("Internal server error");
 	}
+
+	// Se formatea la respuesta en formato HTTP
 	response = CrearRespuestaHTTP(response_api.body);
-	if (!response)
+	if (!response) {
 		return MHD_NO;
+	}
+
+	// Devuelve la respuesta procesada
 	ret = MHD_queue_response(connection, response_api.status, response);
 	MHD_destroy_response(response);
 	return ret;
