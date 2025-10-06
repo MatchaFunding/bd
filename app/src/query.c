@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <mysql/mysql.h>
-#include "query.h"
+#include "headers/query.h"
 
 /* Funcion que escapa todas las comillas dobles en un string */
 char *EscaparComillas(const char *input) {
@@ -30,7 +30,7 @@ char *EscaparComillas(const char *input) {
 }
 
 /* Realiza la query en MySQL y devuelve la respuesta en JSON */
-char *EjecutarQueryAJSON(const char *query) {
+char *EjecutarQueryEnJSON(const char *query) {
 	MYSQL *con = mysql_init(NULL);
 	if (con == NULL) {
 		fprintf(stderr, "Couldn't initialize database\n");
@@ -49,14 +49,14 @@ char *EjecutarQueryAJSON(const char *query) {
 		fprintf(stderr, "No results from query\n");
 		return NULL;
 	}
-	char *json = ParsearResultadoAJSON(result);
+	char *json = ParsearResultadoEnJSON(result);
 	mysql_free_result(result);
 	mysql_close(con);
 	return json;
 }
 
 /* Toma la respuesta de MySQL y la transforma en un arreglo JSON */
-char *ParsearResultadoAJSON(MYSQL_RES *result) {
+char *ParsearResultadoEnJSON(MYSQL_RES *result) {
 	int num_fields = mysql_num_fields(result);
 	int num_rows = mysql_num_rows(result);
 	int curr_row = 0;

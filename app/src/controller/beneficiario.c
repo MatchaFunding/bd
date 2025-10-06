@@ -1,13 +1,12 @@
 #include <string.h>
 #include <stdio.h>
-#include <hiredis/hiredis.h>
-#include "instrumento.h"
-#include "query.h"
+#include "../headers/query.h"
+#include "../headers/beneficiario.h"
 
 /* Muestra absolutamente todos los beneficiarios existentes */
 HTTP_response VerTodosLosBeneficiarios(const char *url) {
 	const char *query = "SELECT * FROM VerTodosLosBeneficiarios";
-	char *result = EjecutarQueryAJSON(query);
+	char *result = EjecutarQueryEnJSON(query);
 	return ValidarResultado(result);
 }
 
@@ -21,15 +20,15 @@ HTTP_response VerSoloUnBeneficiario(const char *id) {
 	}
 	char query[64];
 	snprintf(query, sizeof(query), "SELECT * FROM VerTodosLosBeneficiarios WHERE ID = %s", id);
-	char *result = EjecutarQueryAJSON(query);
+	char *result = EjecutarQueryEnJSON(query);
 	return ValidarResultado(result);
 }
 
 /* Gestiona y enruta las llamadas hacia los beneficiarios */
 HTTP_response URLBeneficiario(const char *url, const char *method, const char *body) {
-	char *id = strstr(url, "/instrumentos/");
+	char *id = strstr(url, "/beneficiarios/");
 	if (id != NULL) {
-		id += strlen("/instrumentos/");
+		id += strlen("/beneficiarios/");
 	}
 	if (EsMetodo(method, "GET")) {
 		if (id == NULL)

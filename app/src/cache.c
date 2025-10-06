@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <hiredis/hiredis.h>
+#include "headers/cache.h"
 
 /* Se intenta conectar con el diccionario en memoria */
 redisContext *ConexionDiccionario() {
@@ -22,7 +23,7 @@ char* BuscarValorEnDiccionario(const char *key) {
 		redisReply *reply = redisCommand(conn, "GET %s", key);
 		if (reply->str) {
 			int len = strlen(reply->str);
-			res = malloc(sizeof(char) * len);
+			res = malloc(sizeof(char)*len);
 			strcpy(res, reply->str);
 		}
 		freeReplyObject(reply);

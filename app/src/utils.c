@@ -2,7 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "utils.h"
+#include "headers/utils.h"
 
 /* Envia un mensaje simple en formato HTTP */
 char *MensajeSimple(const char *message_str) {

@@ -1,12 +1,12 @@
 #include <string.h>
 #include <stdio.h>
-#include "instrumento.h"
-#include "query.h"
+#include "../headers/query.h"
+#include "../headers/proyecto.h"
 
 /* Muestra absolutamente todos los proyectos existentes */
 HTTP_response VerTodosLosProyectos(const char *url) {
 	const char *query = "SELECT * FROM VerTodosLosProyectos";
-	char *result = EjecutarQueryAJSON(query);
+	char *result = EjecutarQueryEnJSON(query);
 	return ValidarResultado(result);
 }
 
@@ -20,7 +20,7 @@ HTTP_response VerSoloUnProyecto(const char *id) {
 	}
 	char query[64];
 	snprintf(query, sizeof(query), "SELECT * FROM VerTodosLosProyectos WHERE ID = %s", id);
-	char *result = EjecutarQueryAJSON(query);
+	char *result = EjecutarQueryEnJSON(query);
 	return ValidarResultado(result);
 }
 

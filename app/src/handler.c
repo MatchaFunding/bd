@@ -1,9 +1,11 @@
-#include "rest.h"
-#include "instrumento.h"
-#include "beneficiario.h"
-#include "proyecto.h"
+//#include "rest.h"
+#include <microhttpd.h>
+#include "utils.h"
 #include <setjmp.h>
-#include "handler.h"
+#include "headers/handler.h"
+#include "headers/instrumento.h"
+#include "headers/beneficiario.h"
+#include "headers/proyecto.h"
 
 jmp_buf ExceptionBuffer;
 
@@ -12,9 +14,23 @@ void LoguearAPI(const char *url, const char *method) {
 	printf("[%s] %s\n", method, url);
 }
 
-/* Se usa la funcion "GestorPrincipal" para redirigir las
+/* Construye la respuesta en formato HTTP*/
+struct MHD_Response *CrearRespuestaHTTP(const char *message) {
+	struct MHD_Response *response;
+	response = MHD_create_response_from_buffer(strlen(message), (void *)message, MHD_RESPMEM_PERSISTENT);
+	if (!response)
+		return NULL;
+	MHD_add_response_header(response, "Content-Type", "application/json");
+	MHD_add_response_header(response, "Access-Control-Allow-Origin", "*");
+	return response;
+}
+
+/*
+Se usa la funcion "GestorPrincipal" para redirigir las
 llamadas en base al tipo de objeto que se esta invocando.
-(es similar a los Routers en FastAPI) */
+
+(es similar a los Routers en FastAPI)
+*/
 enum MHD_Result GestorPrincipal(void *cls, struct MHD_Connection *connection, const char *url, const char *method, const char *version, const char *upload_data, size_t *upload_data_size, void **con_cls) {
 	char *url_str = (char *)url;
 	char *method_str = (char *)method;
