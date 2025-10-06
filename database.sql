@@ -6,7 +6,10 @@ USE MatchaFundingMySQL;
 -- Aumenta el cache disponible para optimizar vistas 
 -- estaticas como datos publicos u historicos
 SET GLOBAL query_cache_size = 800000000;
-/*
+
+-- Aumenta el tamano de el pool de buffers para permitir
+-- que la base de datos almacene mas datos en memoria
+SET GLOBAL innodb_buffer_pool_size = 800000000;/*
 Regiones de Chile como su propia tabla para poder hacer la validacion correcta
 Es un campo sumamanete comun en este contexto.
 */
@@ -134,6 +137,7 @@ Vista que muestra los beneficiarios en formato legible
 */
 CREATE VIEW VerTodosLosBeneficiarios AS
 SELECT
+	Beneficiario.ID,
 	Beneficiario.Nombre,
 	Region.Nombre AS RegionDeCreacion,
 	Beneficiario.FechaDeCreacion,
@@ -185,7 +189,8 @@ Vista que muestra los proyectos en formato legible
 */
 CREATE VIEW VerTodosLosProyectos AS
 SELECT
-	Beneficiario.Nombre AS Beneficiario,
+	Proyecto.ID,
+	Proyecto.Beneficiario,
 	Proyecto.Titulo,
 	Proyecto.Descripcion,
 	Proyecto.DuracionEnMesesMinimo,
@@ -244,6 +249,7 @@ Vista que muestra las personas en formato legible
 */
 CREATE VIEW VerTodasLasPersonas AS
 SELECT
+	Persona.ID,
 	Persona.Nombre,
 	Persona.Apellido,
 	Sexo.Nombre AS Sexo,
@@ -274,14 +280,7 @@ CREATE TABLE Miembro (
 Vista que muestra los miembros en formato legible
 */
 CREATE VIEW VerTodosLosMiembros AS
-SELECT
-	Persona.Nombre AS Persona,
-	Beneficiario.Nombre AS Beneficiario
-FROM
-	Miembro, Persona, Beneficiario
-WHERE
-	Persona.ID=Miembro.Persona AND
-	Beneficiario.ID=Miembro.Beneficiario;
+SELECT * FROM Miembro;
 
 /*
 Clase que representa a una persona que es parte de un proyecto que busca fondos.
@@ -299,15 +298,7 @@ CREATE TABLE Colaborador (
 Vista que muestra los colaboradores en formato legible
 */
 CREATE VIEW VerTodosLosColaboradores AS
-SELECT
-	Persona.Nombre AS Persona,
-	Proyecto.Titulo AS Proyecto
-FROM
-	Colaborador, Persona, Proyecto
-WHERE
-	Persona.ID=Colaborador.Persona AND
-	Proyecto.ID=Colaborador.Proyecto;
-
+SELECT * FROM Colaborador;
 /*
 Clase que representa a un usuario de MatchaFunding.
 */
@@ -337,15 +328,7 @@ CREATE TABLE Consorcio (
 Vista que muestra los consorcios en formato legible
 */
 CREATE VIEW VerTodosLosConsorcios AS
-SELECT
-	Beneficiario.Nombre AS PrimerBeneficiario,
-	Beneficiario.Nombre AS SegundoBeneficiario
-FROM
-	Consorcio, Beneficiario
-WHERE
-	Beneficiario.ID=Consorcio.PrimerBeneficiario AND
-	Beneficiario.ID=Consorcio.SegundoBeneficiario;
-
+SELECT * FROM Consorcio;
 /*
 Clase que representa las entes financieras que ofrecen los fondos.
 En muchos sentidos operan de la misma forma que las entes benficiarias,
@@ -386,6 +369,7 @@ Vista que muestra los beneficiarios en formato legible
 */
 CREATE TABLE VerTodosLosFinanciadores AS
 SELECT
+	Financiador.ID,
 	Financiador.Nombre,
 	Region.Nombre AS RegionDeCreacion,
 	Financiador.FechaDeCreacion,
@@ -426,6 +410,9 @@ VALUES
 	(6,"PAY","Patrocinio Institucional"),
 	(7,"DES","Desierto"),
 	(8,"CER","Cerrrado");
+
+CREATE TABLE VerEstadosDeFondo AS
+SELECT Nombre FROM EstadoDeFondo;
 /*
 Tipo de beneficio que otorga cierto fondo o instrumento.
 */
@@ -525,7 +512,6 @@ WHERE
 	EstadoDeFondo.ID=Instrumento.Estado AND
 	TipoDeBeneficio.ID=Instrumento.TipoDeBeneficio AND
 	TipoDePerfil.ID=Instrumento.TipoDePerfil;
-
 /*
 Clase que representa los estados en los que se puede encontrar una postulacion.
 Los resultados solo pueden caer dentro de las tres categorias.
@@ -568,9 +554,10 @@ Vista que muestra las postulaciones en formato legible
 */
 CREATE VIEW VerTodasLasPostulaciones AS
 SELECT
-	Beneficiario.Nombre AS Beneficiario,
-	Proyecto.Titulo AS Proyecto,
-	Instrumento.Titulo AS Instrumento,
+	Postulacion.ID,
+	Postulacion.Beneficiario,
+	Postulacion.Proyecto,
+	Postulacion.Instrumento,
 	Resultado.Nombre AS Resultado,
 	Postulacion.MontoObtenido,
 	Postulacion.FechaDePostulacion,
@@ -578,14 +565,8 @@ SELECT
 	Postulacion.Detalle
 FROM
 	Postulacion,
-	Beneficiario,
-	Proyecto,
-	Instrumento,
 	Resultado
 WHERE
-	Beneficiario.ID=Postulacion.Beneficiario AND
-	Proyecto.ID=Postulacion.Proyecto AND
-	Instrumento.ID=Postulacion.Instrumento AND
 	Resultado.ID=Postulacion.Resultado;
 
 /*

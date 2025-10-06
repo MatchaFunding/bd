@@ -14,12 +14,4 @@ CREATE TABLE Colaborador (
 Vista que muestra los colaboradores en formato legible
 */
 CREATE VIEW VerTodosLosColaboradores AS
-SELECT
-	Persona.Nombre AS Persona,
-	Proyecto.Titulo AS Proyecto
-FROM
-	Colaborador, Persona, Proyecto
-WHERE
-	Persona.ID=Colaborador.Persona AND
-	Proyecto.ID=Colaborador.Proyecto;
-
+SELECT * FROM Colaborador;

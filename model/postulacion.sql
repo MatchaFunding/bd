@@ -23,9 +23,10 @@ Vista que muestra las postulaciones en formato legible
 */
 CREATE VIEW VerTodasLasPostulaciones AS
 SELECT
-	Beneficiario.Nombre AS Beneficiario,
-	Proyecto.Titulo AS Proyecto,
-	Instrumento.Titulo AS Instrumento,
+	Postulacion.ID,
+	Postulacion.Beneficiario,
+	Postulacion.Proyecto,
+	Postulacion.Instrumento,
 	Resultado.Nombre AS Resultado,
 	Postulacion.MontoObtenido,
 	Postulacion.FechaDePostulacion,
@@ -33,13 +34,7 @@ SELECT
 	Postulacion.Detalle
 FROM
 	Postulacion,
-	Beneficiario,
-	Proyecto,
-	Instrumento,
 	Resultado
 WHERE
-	Beneficiario.ID=Postulacion.Beneficiario AND
-	Proyecto.ID=Postulacion.Proyecto AND
-	Instrumento.ID=Postulacion.Instrumento AND
 	Resultado.ID=Postulacion.Resultado;
 

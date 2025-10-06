@@ -1,6 +1,7 @@
 #include "rest.h"
 #include "instrumento.h"
 #include "beneficiario.h"
+#include "proyecto.h"
 #include <setjmp.h>
 #include "handler.h"
 
@@ -11,12 +12,10 @@ void LoguearAPI(const char *url, const char *method) {
 	printf("[%s] %s\n", method, url);
 }
 
-/*
-Se usa la funcion "GestorPrincipal" para redirigir las llamadas en
-base al tipo de objeto que se esta invocando.
-(es similar a los Routers en FastAPI)
-*/
-enum MHD_Result GestorPrincipal(void *cls, struct MHD_Connection *connection,  const char *url, const char *method, const char *version, const char *upload_data, size_t *upload_data_size, void **con_cls) {
+/* Se usa la funcion "GestorPrincipal" para redirigir las
+llamadas en base al tipo de objeto que se esta invocando.
+(es similar a los Routers en FastAPI) */
+enum MHD_Result GestorPrincipal(void *cls, struct MHD_Connection *connection, const char *url, const char *method, const char *version, const char *upload_data, size_t *upload_data_size, void **con_cls) {
 	char *url_str = (char *)url;
 	char *method_str = (char *)method;
 	struct MHD_Response *response;
@@ -35,6 +34,9 @@ enum MHD_Result GestorPrincipal(void *cls, struct MHD_Connection *connection,  c
 		}
 		else if (EsRuta(url_str, "/beneficiarios")) {
 			response_api = URLBeneficiario(url_str, method_str, upload_data);
+		}
+		else if (EsRuta(url_str, "/proyectos")) {
+			response_api = URLProyecto(url_str, method_str, upload_data);
 		}
 		else {
 			response_api = (HTTP_response){

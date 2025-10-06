@@ -1,5 +1,6 @@
 #include <string.h>
 #include <stdio.h>
+#include <hiredis/hiredis.h>
 #include "instrumento.h"
 #include "query.h"
 
@@ -24,8 +25,8 @@ HTTP_response VerSoloUnBeneficiario(const char *id) {
 	return ValidarResultado(result);
 }
 
-/* Gestiona y enruta las llamdas hacia los beneficiarios */
-HTTP_response URLBeneficiario(const char *url, const char *method, const char *body){
+/* Gestiona y enruta las llamadas hacia los beneficiarios */
+HTTP_response URLBeneficiario(const char *url, const char *method, const char *body) {
 	char *id = strstr(url, "/instrumentos/");
 	if (id != NULL) {
 		id += strlen("/instrumentos/");

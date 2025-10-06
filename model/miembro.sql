@@ -15,12 +15,5 @@ CREATE TABLE Miembro (
 Vista que muestra los miembros en formato legible
 */
 CREATE VIEW VerTodosLosMiembros AS
-SELECT
-	Persona.Nombre AS Persona,
-	Beneficiario.Nombre AS Beneficiario
-FROM
-	Miembro, Persona, Beneficiario
-WHERE
-	Persona.ID=Miembro.Persona AND
-	Beneficiario.ID=Miembro.Beneficiario;
+SELECT * FROM Miembro;
 

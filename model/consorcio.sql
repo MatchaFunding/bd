@@ -15,12 +15,4 @@ CREATE TABLE Consorcio (
 Vista que muestra los consorcios en formato legible
 */
 CREATE VIEW VerTodosLosConsorcios AS
-SELECT
-	Beneficiario.Nombre AS PrimerBeneficiario,
-	Beneficiario.Nombre AS SegundoBeneficiario
-FROM
-	Consorcio, Beneficiario
-WHERE
-	Beneficiario.ID=Consorcio.PrimerBeneficiario AND
-	Beneficiario.ID=Consorcio.SegundoBeneficiario;
-
+SELECT * FROM Consorcio;

@@ -28,7 +28,8 @@ Vista que muestra los proyectos en formato legible
 */
 CREATE VIEW VerTodosLosProyectos AS
 SELECT
-	Beneficiario.Nombre AS Beneficiario,
+	Proyecto.ID,
+	Proyecto.Beneficiario,
 	Proyecto.Titulo,
 	Proyecto.Descripcion,
 	Proyecto.DuracionEnMesesMinimo,

@@ -38,6 +38,7 @@ Vista que muestra los beneficiarios en formato legible
 */
 CREATE TABLE VerTodosLosFinanciadores AS
 SELECT
+	Financiador.ID,
 	Financiador.Nombre,
 	Region.Nombre AS RegionDeCreacion,
 	Financiador.FechaDeCreacion,

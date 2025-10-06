@@ -1,13 +1,20 @@
 #include <string.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include "instrumento.h"
 #include "query.h"
+#include "cache.h"
 
 /* Muestra absolutamente todos los instrumentos existentes */
 HTTP_response VerTodosLosInstrumentos(const char *url) {
-	const char *query = "SELECT * FROM VerTodosLosInstrumentos";
-	char *result = EjecutarQueryAJSON(query);
-	return ValidarResultado(result);
+	char *dict = BuscarValorEnDiccionario("instrumentos");
+	if (!dict) {
+		const char *query = "SELECT * FROM VerTodosLosInstrumentos";
+		char *result = EjecutarQueryAJSON(query);
+		GuardarValorEnDiccionario("instrumentos", result);
+		return ValidarResultado(result);
+	}
+	return ValidarResultado(dict);
 }
 
 /* Muestra solo un instrumento en base a su identificador */

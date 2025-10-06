@@ -71,4 +71,3 @@ WHERE
 	EstadoDeFondo.ID=Instrumento.Estado AND
 	TipoDeBeneficio.ID=Instrumento.TipoDeBeneficio AND
 	TipoDePerfil.ID=Instrumento.TipoDePerfil;
-
