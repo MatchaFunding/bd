@@ -5,6 +5,12 @@
 #include <hiredis/hiredis.h>
 #include "headers/cache.h"
 
+/*
+Se utiliza Redis como diccionario de cache en memoria para poder
+acceder rapidamente a valores ya computados y formateados en las
+vistas.
+*/
+
 /* Se intenta conectar con el diccionario de cache en memoria */
 redisContext *ConexionDiccionario() {
 	redisContext *conn = redisConnect("127.0.0.1", 6379);

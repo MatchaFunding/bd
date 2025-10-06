@@ -1,4 +1,3 @@
-//#include "rest.h"
 #include <microhttpd.h>
 #include "utils.h"
 #include <setjmp.h>
@@ -7,12 +6,12 @@
 
 jmp_buf ExceptionBuffer;
 
-/* Muestra por pantalla la request solicitada por el cliente */
+/* Muestra por pantalla la request y metodo solicitados por el cliente */
 void LoguearAPI(const char *url, const char *method) {
 	printf("[%s] %s\n", method, url);
 }
 
-/* Construye la respuesta en formato HTTP*/
+/* Construye la respuesta en formato HTTP */
 struct MHD_Response *CrearRespuestaHTTP(const char *message) {
 	struct MHD_Response *response;
 	response = MHD_create_response_from_buffer(strlen(message), (void *)message, MHD_RESPMEM_PERSISTENT);
