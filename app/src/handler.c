@@ -4,8 +4,6 @@
 #include <setjmp.h>
 #include "headers/handler.h"
 #include "headers/instrumento.h"
-#include "headers/beneficiario.h"
-#include "headers/proyecto.h"
 
 jmp_buf ExceptionBuffer;
 
@@ -47,12 +45,6 @@ enum MHD_Result GestorPrincipal(void *cls, struct MHD_Connection *connection, co
 		}
 		else if (EsRuta(url_str, "/instrumentos")) {
 			response_api = URLInstrumento(url_str, method_str, upload_data);
-		}
-		else if (EsRuta(url_str, "/beneficiarios")) {
-			response_api = URLBeneficiario(url_str, method_str, upload_data);
-		}
-		else if (EsRuta(url_str, "/proyectos")) {
-			response_api = URLProyecto(url_str, method_str, upload_data);
 		}
 		else {
 			response_api = (HTTP_response){
