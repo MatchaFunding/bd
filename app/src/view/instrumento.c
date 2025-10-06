@@ -25,8 +25,15 @@ HTTP_response VerSoloUnInstrumento(const char *id) {
 			.status = BAD_REQUEST
 		};
 	}
+	char cache_query[64];
 	char query[64];
-	snprintf(query, sizeof(query), "SELECT * FROM VerTodosLosInstrumentos WHERE ID = %s", id);
-	char *result = EjecutarQueryEnJSON(query);
-	return ValidarResultado(result);
+	snprintf(cache_query, sizeof(cache_query), "instrumento:%s", id);
+	char *cache = BuscarEnCache(cache_query);
+	if (!cache) {
+		snprintf(query, sizeof(query), "SELECT * FROM VerTodosLosInstrumentos WHERE ID=%s", id);
+		char *result = EjecutarQueryEnJSON(query);
+		GuardarEnCache(cache_query, result);
+		return ValidarResultado(result);
+	}
+	return ValidarResultado(cache);
 }
