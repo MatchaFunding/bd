@@ -7,11 +7,11 @@
 
 /* Muestra absolutamente todos los instrumentos existentes */
 HTTP_response VerTodosLosInstrumentos(const char *url) {
-	char *cache = BuscarValorEnDiccionario("instrumentos");
+	char *cache = BuscarEnCache("instrumentos");
 	if (!cache) {
 		const char *query = "SELECT * FROM VerTodosLosInstrumentos";
 		char *result = EjecutarQueryEnJSON(query);
-		GuardarValorEnDiccionario("instrumentos", result);
+		GuardarEnCache("instrumentos", result);
 		return ValidarResultado(result);
 	}
 	return ValidarResultado(cache);

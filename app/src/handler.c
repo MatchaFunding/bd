@@ -24,7 +24,7 @@ struct MHD_Response *CrearRespuestaHTTP(const char *message) {
 
 /*
 Se usa la funcion "GestorPrincipal" para redirigir las
-llamadas en base al tipo de objeto que se esta invocando.
+llamadas en base al tipo de objeto que se esta invocando
 
 (es similar a los Routers en FastAPI)
 */

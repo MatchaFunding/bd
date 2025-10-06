@@ -12,8 +12,8 @@ vistas.
 */
 
 /* Se intenta conectar con el diccionario de cache en memoria */
-redisContext *ConexionDiccionario() {
-	redisContext *conn = redisConnect("127.0.0.1", 6379);
+redisContext *ConexionCache() {
+	redisContext *conn = redisConnect(CACHE_HOST, CACHE_PORT);
 	if (conn->err) {
 		printf("error: %s\n", conn->errstr);
 		return NULL;
@@ -22,13 +22,13 @@ redisContext *ConexionDiccionario() {
 }
 
 /* Buscar un valor en el diccionario de cache en memoria */
-char* BuscarValorEnDiccionario(const char *key) {
+char* BuscarEnCache(const char *key) {
 	char *res = NULL;
-	redisContext *conn = ConexionDiccionario();
+	redisContext *conn = ConexionCache();
 	if (conn) {
 		redisReply *reply = redisCommand(conn, "GET %s", key);
 		if (reply->str) {
-			int len = strlen(reply->str);
+			size_t len = strlen(reply->str);
 			res = malloc(sizeof(char)*len);
 			strcpy(res, reply->str);
 		}
@@ -39,8 +39,8 @@ char* BuscarValorEnDiccionario(const char *key) {
 }
 
 /* Guarda un valor en el diccionario de cache en memoria */
-void GuardarValorEnDiccionario(const char *key, const char *value) {
-	redisContext *conn = ConexionDiccionario();
+void GuardarEnCache(const char *key, const char *value) {
+	redisContext *conn = ConexionCache();
 	if (conn) {
 		redisReply *reply = redisCommand(conn, "SET %s %s", key, value);
 		freeReplyObject(reply);
