@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "query.h": "c",
+        "utils.h": "c"
+    }
+}
