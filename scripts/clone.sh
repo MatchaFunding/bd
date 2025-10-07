@@ -1,5 +1,6 @@
+sudo mariadb -e 'DROP DATABASE IF EXISTS MatchaDrinkersMySQL' &&
+sudo mariadb -e 'CREATE DATABASE IF NOT EXISTS MatchaDrinkersMySQL' &&
 cat \
-../schema/crear_base_de_datos.sql \
 ../schema/region.sql \
 ../schema/tipo_de_persona.sql \
 ../schema/tipo_de_empresa.sql \
@@ -20,5 +21,4 @@ cat \
 ../schema/postulacion.sql \
 ../schema/idea.sql \
 ../schema/propuesta.sql \
-../schema/insertar-datos.sql \
-> ../database.sql
+| sudo mariadb MatchaDrinkersMySQL

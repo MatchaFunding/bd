@@ -9,7 +9,8 @@ SET GLOBAL query_cache_size = 800000000;
 
 -- Aumenta el tamano de el pool de buffers para permitir
 -- que la base de datos almacene mas datos en memoria
-SET GLOBAL innodb_buffer_pool_size = 800000000;/*
+SET GLOBAL innodb_buffer_pool_size = 800000000;
+/*
 Regiones de Chile como su propia tabla para poder hacer la validacion correcta
 Es un campo sumamanete comun en este contexto.
 */
@@ -629,7 +630,7 @@ INSERT INTO Usuario (ID, NombreDeUsuario, Contrasena, Correo, Persona) VALUES
 (9,'tututuru@max.cl','12345678!','tututuru@max.cl',19),
 (20,'matchafunding@gmail.com','Umami1939!','matchafunding@gmail.com',43);
 
-INSERT INTO Beneficiario (ID,Nombre,FechaDeCreacion,RegionDeCreacion,Direccion,TipoDePersona,TipoDeEmpresa,Perfil,RUTdeEmpresa,RUTdeRepresentante) VALUES
+INSERT INTO Beneficiario (ID, Nombre, FechaDeCreacion, RegionDeCreacion, Direccion, TipoDePersona, TipoDeEmpresa, Perfil, RUTdeEmpresa, RUTdeRepresentante) VALUES
 (1,'ASOCIACION CHILE DISENO ASOCIACION GREMIAL','2025-01-01',17,'N/A',2,4,1,'507412300','507412300'),
 (2,'AGRICOLA JULIO GIDDINGS E I R L','2025-01-01',17,'N/A',2,4,1,'520014225','520014225'),
 (3,'BEATRIZ EDITH ARAYA ARANCIBIA ASESORIAS EN TECNOLOGIAS DE INFORMACION SPA','2025-01-01',17,'N/A',2,4,1,'52001578-7','52001578-7'),
@@ -732,7 +733,7 @@ INSERT INTO Beneficiario (ID,Nombre,FechaDeCreacion,RegionDeCreacion,Direccion,T
 (103,'Instituto Milenio en Amoníaco Verde como Vector Energético (MIGA)','2023-01-01',7,'N/A',2,4,1,'65.225.271-0','65.225.271-0'),
 (104,'MatchaFunding','2023-01-01',7,'N/A',2,4,1,'20.430.363-0','20.430.363-0');
 
-INSERT INTO Instrumento (ID,Titulo,Financiador,Alcance,Descripcion,FechaDeApertura,FechaDeCierre,DuracionEnMeses,Beneficios,Requisitos,MontoMinimo,MontoMaximo,Estado,TipoDeBeneficio,TipoDePerfil,EnlaceDelDetalle,EnlaceDeLaFoto) VALUES
+INSERT INTO Instrumento (ID, Titulo, Financiador, Alcance, Descripcion, FechaDeApertura, FechaDeCierre, DuracionEnMeses, Beneficios, Requisitos, MontoMinimo, MontoMaximo, Estado, TipoDeBeneficio, TipoDePerfil, EnlaceDelDetalle, EnlaceDeLaFoto) VALUES
 (1,'DESARROLLA INVERSIÓN PRODUCTIVA – REGIÓN DE TARAPACÁ – CONVOCATORIA 2025',2,2,'Buscamos contribuir al desarrollo de la Región de Tarapacá mediante el crecimiento económico de sus empresas – pequeñas y medianas. Apoyando la materialización de proyectos de inversión productiva cofinanciando la adquisición de activo fijo, habilitación de infraestructura productiva y capital de trabajo.','2025-08-28','2025-09-16',0,'Corfo cofinanciará hasta el 60% del costo total de cada proyecto, con tope de $15.000.000, de acuerdo al tramo de inversión total del proyecto. Se podrá cofinanciar con el subsidio la adquisición de activo fijo, habilitación de infraestructura productiva y capital de trabajo. El porcentaje de capital de trabajo no podrá exceder del 20% del costo total del proyecto individual.','Tener RUT chileno',0,15000000,2,2,1,'https://corfo.cl/sites/cpp/convocatoria/dip-tarapaca-2025/',''),
 (2,'DESARROLLA INVERSIÓN PRODUCTIVA – REGIÓN DE TARAPACÁ – CONVOCATORIA 2025 COMERCIO Y LOGÍSTICA',2,2,'Buscamos contribuir al desarrollo de la Región de Tarapacá mediante el crecimiento económico de sus empresas – pequeñas y medianas. Apoyando la materialización de proyectos de inversión productiva cofinanciando la adquisición de activo fijo, habilitación de infraestructura productiva y capital de trabajo.','2025-08-28','2025-09-16',0,'Corfo cofinanciará hasta el 60% del costo total de cada proyecto, con tope de $15.000.000, de acuerdo al tramo de inversión total del proyecto. Se podrá cofinanciar con el subsidio la adquisición de activo fijo, habilitación de infraestructura productiva y capital de trabajo. El porcentaje de capital de trabajo no podrá exceder del 20% del costo total del proyecto individual.','Tener RUT chileno',0,15000000,2,2,1,'https://corfo.cl/sites/cpp/convocatoria/dip-tarapaca-comercio-logistica-2025/',''),
 (3,'DESARROLLA INVERSIÓN PRODUCTIVA – REGIÓN METROPOLITANA – 2° CONVOCATORIA 2025',2,7,'Apoyo a proyectos de inversión productiva con potencial de generación de externalidades positivas mediante un cofinanciamiento para la adquisición de activo fijo, infraestructura y capital de trabajo. El cofinanciamiento cubre hasta el 60% del costo total del proyecto, con un tope de $20.000.000.','2025-08-27','2025-09-10',1,'El cofinanciamiento cubre hasta el 60% del costo total del proyecto, con un tope de $20.000.000. Para cofinanciar capital de trabajo, se podrá destinar hasta un 20% del monto total de cofinanciamiento entregado por CDPR al proyecto.','Tener RUT chileno',0,20000000,2,1,1,'https://corfo.cl/sites/cpp/convocatoria/dip-metropolitana-segunda-convocatoria-2025/',''),
