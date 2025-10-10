@@ -7,7 +7,7 @@ CREATE TABLE Usuario (
 	NombreDeUsuario varchar(200),
 	Contrasena varchar(200) NOT NULL,
 	Correo varchar(200) NOT NULL,
-	Telefono tinyint NULL,
+	Telefono tinyint DEFAULT 0,
 	PRIMARY KEY (ID),
 	FOREIGN KEY (Persona) REFERENCES Persona(ID)
 );

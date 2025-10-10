@@ -15,7 +15,7 @@ CREATE TABLE Persona (
 	FechaDeNacimiento date NULL,
 	Ocupacion varchar(1000) NULL,
 	Correo varchar(200) NULL,
-	Telefono tinyint NULL,
+	Telefono varchar(9) NULL,
 	PRIMARY KEY (ID),
 	FOREIGN KEY (Sexo) REFERENCES Sexo(ID)
 );

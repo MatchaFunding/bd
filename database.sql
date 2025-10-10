@@ -241,7 +241,7 @@ CREATE TABLE Persona (
 	FechaDeNacimiento date NULL,
 	Ocupacion varchar(1000) NULL,
 	Correo varchar(200) NULL,
-	Telefono tinyint NULL,
+	Telefono varchar(9) NULL,
 	PRIMARY KEY (ID),
 	FOREIGN KEY (Sexo) REFERENCES Sexo(ID)
 );
@@ -309,7 +309,7 @@ CREATE TABLE Usuario (
 	NombreDeUsuario varchar(200),
 	Contrasena varchar(200) NOT NULL,
 	Correo varchar(200) NOT NULL,
-	Telefono tinyint NULL,
+	Telefono tinyint DEFAULT 0,
 	PRIMARY KEY (ID),
 	FOREIGN KEY (Persona) REFERENCES Persona(ID)
 );/*
@@ -459,7 +459,7 @@ CREATE TABLE Instrumento (
 	FechaDeApertura date NOT NULL,
 	FechaDeCierre date NOT NULL,
 	FechaDeResultado date NULL,
-	DuracionEnMeses int NOT NULL,
+	DuracionEnMeses int NULL,
 	Beneficios varchar(1000) NULL,
 	Requisitos varchar(1000) NULL,
 	MontoMinimo int NOT NULL,
